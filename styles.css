@@ -1,19 +1,27 @@
-body{
+body {
     font-family: Alegreya, serif;
     background-color: #2b2e4a;
 }
-#title{
+
+#title {
     font-size: 5em;
     color: #e84545;
 }
-.options{
+
+.options {
     font-size: 5em;
     color: #e84545;
 }
-.btn{
+
+.btn {
     font-size: 0.3em;
     background-color: #53354a;
     color: #e84545;
     width: 20%;
     margin-top: 0.5em;
+}
+
+.board{
+    font-size: 2em;
+    color: #e84545;
 }
