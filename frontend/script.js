@@ -1,12 +1,16 @@
 "use strict";
-var test = /** @class */ (function () {
-    function test() {
-        var _this = this;
-        var testbtn = document.getElementById("pcarrier");
-        testbtn.addEventListener("click", function (ev) { return _this.printName(); });
+var buttons = /** @class */ (function () {
+    function buttons() {
+        this.currentShip = "";
+        var wrapper = document.getElementById("pships");
+        wrapper.addEventListener("click", function (event) {
+            var isButton = event.target instanceof HTMLButtonElement;
+            if (!isButton) {
+                return;
+            }
+            console.log(event.target.id);
+        });
     }
-    test.prototype.printName = function () {
-    };
-    return test;
+    return buttons;
 }());
-new test();
+var button = new buttons();

@@ -1,13 +1,16 @@
-class test{
+class buttons{
+    currentShip : string = "";
+
     constructor() {
-        let testbtn = document.getElementById("pcarrier");
-        testbtn!.addEventListener("click", ev => this.printName());
-    }
-
-    printName(){
-
+        const wrapper = document.getElementById("pships");
+        wrapper!.addEventListener("click", event => {
+            const isButton = event!.target instanceof HTMLButtonElement;
+            if(!isButton){
+                return;
+            }
+            console.log((<HTMLButtonElement>event.target).id);
+        })
     }
 }
 
-
-new test();
+let button = new buttons();
