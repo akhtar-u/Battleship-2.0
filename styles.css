@@ -13,6 +13,11 @@ body {
     color: #e84545;
 }
 
+.boardname{
+    font-size: 3em;
+    color: #e84545;
+}
+
 .btn {
     font-size: 0.3em;
     background-color: #53354a;
@@ -21,7 +26,26 @@ body {
     margin-top: 0.5em;
 }
 
-.board{
+.board {
     font-size: 2em;
     color: #e84545;
+}
+
+td {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: 2px solid #e84545;
+}
+
+td:hover {
+    background: #903749;
+}
+
+.numbers, .letters {
+    text-align: center;
+    font-size: 20px;
+    height: 40px;
+    width: 40px;
+    border: none;
 }
