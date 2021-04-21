@@ -24,6 +24,10 @@ body {
     color: #e84545;
 }
 
+span{
+    color: #ffd5d5;
+}
+
 .ships {
     margin-top: 1em;
     font-size: 2em;
