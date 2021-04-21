@@ -3,12 +3,15 @@ let currentShip = null;
 let firstCell = null;
 let secondCell = null;
 let currShipLength = null;
-let carrierCells = new Array(5);
-let battleshipCells = new Array(4);
-let cruiserCells = new Array(3);
-let submarineCells = new Array(3);
-let destroyerCells = new Array(2);
-let allCells = new Array(17);
+let shipDirection;
+let currentShipID;
+let overlapFlag = false;
+let carrierCells = [];
+let battleshipCells = [];
+let cruiserCells = [];
+let submarineCells = [];
+let destroyerCells = [];
+let allCells = [];
 /* add event listeners to player buttons and gameboard */
 const pbtnwrapper = document.getElementById("pships");
 const pboardwrapper = document.getElementById("pboard").getElementsByTagName("td");
@@ -18,6 +21,7 @@ pbtnwrapper.addEventListener("click", event => {
         return;
     }
     currentShip = event.target.textContent;
+    currentShipID = event.target.id;
     shipSelected();
 });
 for (let i = 0; i < pboardwrapper.length; i++) {
@@ -29,17 +33,24 @@ for (let i = 0; i < pboardwrapper.length; i++) {
         if (currentShip != null) {
             if (firstCell != null) {
                 secondCell = parseInt(event.target.getElementsByTagName("div")[0].id);
-                document.getElementById("message").innerHTML = "You have selected <span>" + secondCell + "</span> " +
-                    "as your ending position.";
+                printLog("You have selected <span>" + secondCell + "</span> " +
+                    "as your ending position.");
                 placeShip();
             }
             else {
                 firstCell = parseInt(event.target.getElementsByTagName("div")[0].id);
-                document.getElementById("message").innerHTML = "You have selected <span>" + firstCell + "</span> " +
-                    "as your starting position.";
+                printLog("You have selected <span>" + firstCell + "</span> " +
+                    "as your starting position.");
+                document.getElementById(String(firstCell)).innerText;
             }
         }
     });
+}
+/* add class to all board div */
+for (let i = 0; i <= 99; i++) {
+    let div = document.getElementById(String(i));
+    div.classList.add("d-flex");
+    div.classList.add("justify-content-center");
 }
 function shipSelected() {
     if (currentShip == "Carrier") {
@@ -57,12 +68,15 @@ function shipSelected() {
     if (currentShip == "Destroyer") {
         currShipLength = 2;
     }
-    document.getElementById("message").innerHTML = "You have selected: <span>" + currentShip + "</span>." +
-        " It has length, <span>" + currShipLength + "</span>. Click on one of the cells to place your ship.";
+    printLog("You have selected: <span>" + currentShip + "</span>." +
+        " It has length, <span>" + currShipLength + "</span>. Click on one of the cells to place your ship.");
 }
 function placeShip() {
-    checkCoordinates();
-    checkOverlap();
+    if (checkCoordinates()) {
+        checkOverlap();
+        /* if ship has been placed */
+        document.getElementById(currentShipID).disabled = true;
+    }
     firstCell = null;
     secondCell = null;
 }
@@ -70,30 +84,80 @@ function checkCoordinates() {
     /* check direction and length */
     if (Math.abs(firstCell - secondCell) < 10) {
         if (Math.abs(firstCell - secondCell) == currShipLength - 1) {
-            console.log("horizontal");
+            shipDirection = -1;
+            return true;
         }
         else {
-            printLengthError();
+            printLog("Your selection is not " +
+                "the correct <span>length</span>! Try again.");
         }
     }
     else if (Math.abs(firstCell - secondCell) >= 10 && firstCell % 10 == secondCell % 10) {
         if (Math.abs(firstCell - secondCell) / 10 == currShipLength - 1) {
-            console.log("vertical");
+            shipDirection = 1;
+            return true;
         }
         else {
-            printLengthError();
+            printLog("Your selection is not " +
+                "the correct <span>length</span>! Try again.");
         }
     }
     else {
-        document.getElementById("message").innerHTML = "Your selection is not <span>horizontal</span> " +
-            "or <span>vertical</span>! Try again.";
+        printLog("Your selection is not <span>horizontal</span> " +
+            "or <span>vertical</span>! Try again.");
     }
+    return false;
 }
-function printLengthError() {
-    document.getElementById("message").innerHTML = "Your selection is not " +
-        "the correct <span>length</span>! Try again.";
+function printLog(text) {
+    document.getElementById("message").innerHTML = text;
 }
 function checkOverlap() {
     /* if the selection is correct, generate coordinates and check for overlap */
-    // for(let i = firstCell)
+    if (firstCell > secondCell) {
+        if (!hasOverlap(firstCell, secondCell)) {
+            generateCoordinates(firstCell, secondCell);
+        }
+    }
+    else {
+        if (!hasOverlap(secondCell, firstCell)) {
+            generateCoordinates(secondCell, firstCell);
+        }
+    }
+}
+function hasOverlap(larger, smaller) {
+    if (shipDirection < 0) {
+        for (let i = smaller; i <= larger; i++) {
+            if (allCells.includes(i)) {
+                printLog("Your selection <span>overlaps</span> with another ship");
+                return true;
+            }
+        }
+    }
+    else {
+        for (let i = smaller; i <= larger; i += 10) {
+            if (allCells.includes(i)) {
+                printLog("Your selection <span>overlaps</span> with another ship");
+                return true;
+            }
+        }
+    }
+    return false;
+}
+function generateCoordinates(larger, smaller) {
+    if (shipDirection < 0) {
+        for (let i = smaller; i <= larger; i++) {
+            placeOnBoard(i);
+        }
+    }
+    else {
+        for (let i = smaller; i <= larger; i += 10) {
+            placeOnBoard(i);
+        }
+    }
+    function placeOnBoard(coord) {
+        allCells.push(coord);
+        document.getElementById(String(coord)).innerText = "#";
+        document.getElementById(String(coord)).style.color = "#ffd5d5";
+    }
+    printLog("You have placed your <span>" + currentShip + "</span>!");
 }
