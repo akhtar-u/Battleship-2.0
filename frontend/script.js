@@ -6,7 +6,7 @@ let currShipLength = null;
 let currentShipID;
 let shipDirection;
 let cpuShipsPlaced = false;
-let attackTile = null;
+let attackCell;
 let cpuShipCoordinates;
 let gameOver = false;
 let attackedCellsByCpu;
@@ -81,7 +81,7 @@ for (let i = 0; i < cpuboardwrapper.length; i++) {
         if (cpuShipsPlaced) {
             let tempID = event.target.getElementsByTagName("div")[0].id;
             tempID = tempID.slice(1);
-            attackTile = parseInt(tempID);
+            attackCell = parseInt(tempID);
             if (!gameOver) {
                 playGame();
             }
@@ -91,6 +91,11 @@ for (let i = 0; i < cpuboardwrapper.length; i++) {
 document.getElementById("start").addEventListener("click", ev => {
     // generateCPUShips();
     cpuShipCoordinates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    cpucarrier.coordinates = [1, 2, 3, 4, 5];
+    cpubattleship.coordinates = [6, 7, 8, 9];
+    cpucruiser.coordinates = [10, 11, 12];
+    cpusubmarine.coordinates = [13, 14, 15];
+    cpudestroyer.coordinates = [15, 16];
     attackedCellsByCpu = [];
     for (let i = 0; i <= 99; i++) {
         attackedCellsByCpu.push(i);
@@ -134,12 +139,6 @@ function placeShip() {
     }
     if (allCells.length == 17) {
         document.getElementById("start").style.display = "block";
-        // console.log(allCells);
-        // console.log(carrier.coordinates);
-        // console.log(battleship.coordinates);
-        // console.log(cruiser.coordinates);
-        // console.log(submarine.coordinates);
-        // console.log(destroyer.coordinates);
     }
     firstCell = null;
     secondCell = null;
@@ -226,16 +225,49 @@ function generateCoordinates(larger, smaller) {
     printLog("You have placed your <span>" + currentShip + "</span>!");
 }
 function playGame() {
-    if (document.getElementById("c" + attackTile).innerText == "") {
-        if (cpuShipCoordinates.includes(attackTile)) {
-            document.getElementById("c" + attackTile).innerText = "💥";
-            cpuShipCoordinates.splice(cpuShipCoordinates.indexOf(attackTile), 1);
+    if (document.getElementById("c" + attackCell).innerText == "") {
+        if (cpuShipCoordinates.includes(attackCell)) {
+            document.getElementById("c" + attackCell).innerText = "💥";
+            cpuShipCoordinates.splice(cpuShipCoordinates.indexOf(attackCell), 1);
+            checkCPUShip(attackCell);
         }
         else {
-            document.getElementById("c" + attackTile).innerText = "❌";
+            document.getElementById("c" + attackCell).innerText = "❌";
         }
         checkWinner();
         attackPlayer();
+    }
+}
+function checkCPUShip(attackCell) {
+    if (cpucarrier.coordinates.includes(attackCell)) {
+        cpucarrier.coordinates.splice(cpucarrier.coordinates.indexOf(attackCell), 1);
+    }
+    if (cpubattleship.coordinates.includes(attackCell)) {
+        cpubattleship.coordinates.splice(cpubattleship.coordinates.indexOf(attackCell), 1);
+    }
+    if (cpucruiser.coordinates.includes(attackCell)) {
+        cpucruiser.coordinates.splice(cpucruiser.coordinates.indexOf(attackCell), 1);
+    }
+    if (cpusubmarine.coordinates.includes(attackCell)) {
+        cpusubmarine.coordinates.splice(cpusubmarine.coordinates.indexOf(attackCell), 1);
+    }
+    if (cpudestroyer.coordinates.includes(attackCell)) {
+        cpudestroyer.coordinates.splice(cpudestroyer.coordinates.indexOf(attackCell), 1);
+    }
+    if (cpucarrier.coordinates.length == 0) {
+        document.getElementById("ccarrier").style.textDecoration = "line-through white 0.2em";
+    }
+    if (cpubattleship.coordinates.length == 0) {
+        document.getElementById("cbattleship").style.textDecoration = "line-through white 0.2em";
+    }
+    if (cpucruiser.coordinates.length == 0) {
+        document.getElementById("ccruiser").style.textDecoration = "line-through white 0.2em";
+    }
+    if (cpusubmarine.coordinates.length == 0) {
+        document.getElementById("csubmarine").style.textDecoration = "line-through white 0.2em";
+    }
+    if (cpudestroyer.coordinates.length == 0) {
+        document.getElementById("cdestroyer").style.textDecoration = "line-through white 0.2em";
     }
 }
 function attackPlayer() {
@@ -243,11 +275,44 @@ function attackPlayer() {
     if (allCells.includes(newAttack)) {
         document.getElementById(String(newAttack)).innerText = "💥";
         allCells.splice(allCells.indexOf(newAttack), 1);
+        checkPlayerShip(newAttack);
     }
     else {
         document.getElementById(String(newAttack)).innerText = "❌";
     }
     checkWinner();
+}
+function checkPlayerShip(attackCell) {
+    if (carrier.coordinates.includes(attackCell)) {
+        carrier.coordinates.splice(carrier.coordinates.indexOf(attackCell), 1);
+    }
+    if (battleship.coordinates.includes(attackCell)) {
+        battleship.coordinates.splice(battleship.coordinates.indexOf(attackCell), 1);
+    }
+    if (cruiser.coordinates.includes(attackCell)) {
+        cruiser.coordinates.splice(cruiser.coordinates.indexOf(attackCell), 1);
+    }
+    if (submarine.coordinates.includes(attackCell)) {
+        submarine.coordinates.splice(submarine.coordinates.indexOf(attackCell), 1);
+    }
+    if (destroyer.coordinates.includes(attackCell)) {
+        destroyer.coordinates.splice(destroyer.coordinates.indexOf(attackCell), 1);
+    }
+    if (carrier.coordinates.length == 0) {
+        document.getElementById("pcarrier").style.textDecoration = "line-through white 0.2em";
+    }
+    if (battleship.coordinates.length == 0) {
+        document.getElementById("pbattleship").style.textDecoration = "line-through white 0.2em";
+    }
+    if (cruiser.coordinates.length == 0) {
+        document.getElementById("pcruiser").style.textDecoration = "line-through white 0.2em";
+    }
+    if (submarine.coordinates.length == 0) {
+        document.getElementById("psubmarine").style.textDecoration = "line-through white 0.2em";
+    }
+    if (destroyer.coordinates.length == 0) {
+        document.getElementById("pdestroyer").style.textDecoration = "line-through white 0.2em";
+    }
 }
 function checkWinner() {
     if (cpuShipCoordinates.length == 0) {
