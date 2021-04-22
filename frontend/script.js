@@ -3,15 +3,25 @@ let currentShip = null;
 let firstCell = null;
 let secondCell = null;
 let currShipLength = null;
-let shipDirection;
 let currentShipID;
-let overlapFlag = false;
-let carrierCells = [];
-let battleshipCells = [];
-let cruiserCells = [];
-let submarineCells = [];
-let destroyerCells = [];
+let shipDirection;
+let cpuShipsPlaced = false;
 let allCells = [];
+/* create a ship class */
+class Ship {
+    constructor(name, length, buttonID) {
+        this.name = name;
+        this.length = length;
+        this.buttonID = buttonID;
+        this.coordinates = [];
+    }
+}
+/* create the 5 ships for the game */
+let carrier = new Ship("Carrier", 5, "pcarrier");
+let battleship = new Ship("Battleship", 4, "pbattleship");
+let cruiser = new Ship("Cruiser", 3, "pcruiser");
+let submarine = new Ship("Submarine", 3, "psubmarine");
+let destroyer = new Ship("Destroyer", 2, "pdestroyer");
 /* add event listeners to player buttons and gameboard */
 const pbtnwrapper = document.getElementById("pships");
 const pboardwrapper = document.getElementById("pboard").getElementsByTagName("td");
@@ -21,8 +31,13 @@ pbtnwrapper.addEventListener("click", event => {
         return;
     }
     currentShip = event.target.textContent;
-    currentShipID = event.target.id;
-    shipSelected();
+    currShipLength = shipSelected().length;
+    currentShipID = shipSelected().buttonID;
+    /* set coordinates to null if player changes ship */
+    firstCell = null;
+    secondCell = null;
+    printLog("You have selected: <span>" + currentShip + "</span>." +
+        " It has length, <span>" + currShipLength + "</span>. Click on one of the cells to place your ship.");
 });
 for (let i = 0; i < pboardwrapper.length; i++) {
     pboardwrapper[i].addEventListener("click", event => {
@@ -41,7 +56,6 @@ for (let i = 0; i < pboardwrapper.length; i++) {
                 firstCell = parseInt(event.target.getElementsByTagName("div")[0].id);
                 printLog("You have selected <span>" + firstCell + "</span> " +
                     "as your starting position.");
-                document.getElementById(String(firstCell)).innerText;
             }
         }
     });
@@ -53,29 +67,32 @@ for (let i = 0; i <= 99; i++) {
     div.classList.add("justify-content-center");
 }
 function shipSelected() {
-    if (currentShip == "Carrier") {
-        currShipLength = 5;
+    if (currentShip == carrier.name) {
+        return carrier;
     }
-    if (currentShip == "Battleship") {
-        currShipLength = 4;
+    if (currentShip == battleship.name) {
+        return battleship;
     }
-    if (currentShip == "Cruiser") {
-        currShipLength = 3;
+    if (currentShip == cruiser.name) {
+        return cruiser;
     }
-    if (currentShip == "Submarine") {
-        currShipLength = 3;
+    if (currentShip == submarine.name) {
+        return submarine;
     }
-    if (currentShip == "Destroyer") {
-        currShipLength = 2;
-    }
-    printLog("You have selected: <span>" + currentShip + "</span>." +
-        " It has length, <span>" + currShipLength + "</span>. Click on one of the cells to place your ship.");
+    return destroyer;
 }
 function placeShip() {
     if (checkCoordinates()) {
         checkOverlap();
         /* if ship has been placed */
         document.getElementById(currentShipID).disabled = true;
+        currentShipID = "";
+        currShipLength = null;
+        currentShip = null;
+    }
+    if (allCells.length == 17) {
+        document.getElementById("start").style.display = "block";
+        generateCPUShips();
     }
     firstCell = null;
     secondCell = null;
@@ -156,8 +173,10 @@ function generateCoordinates(larger, smaller) {
     }
     function placeOnBoard(coord) {
         allCells.push(coord);
-        document.getElementById(String(coord)).innerText = "#";
+        document.getElementById(String(coord)).innerText = "⚓";
         document.getElementById(String(coord)).style.color = "#ffd5d5";
     }
     printLog("You have placed your <span>" + currentShip + "</span>!");
+}
+function generateCPUShips() {
 }

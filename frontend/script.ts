@@ -2,15 +2,33 @@ let currentShip: string | null = null;
 let firstCell: number | null = null;
 let secondCell: number | null = null;
 let currShipLength: number | null = null;
-let shipDirection: number;
 let currentShipID: string;
-let overlapFlag: boolean = false;
-let carrierCells: number[] = [];
-let battleshipCells: number[] = [];
-let cruiserCells: number[] = [];
-let submarineCells: number[] = [];
-let destroyerCells: number[] = [];
+let shipDirection: number;
+let cpuShipsPlaced: boolean = false;
 let allCells: number[] = [];
+
+/* create a ship class */
+class Ship {
+    name: string;
+    length: number;
+    coordinates: number[];
+    buttonID: string;
+
+    constructor(name: string, length: number, buttonID: string) {
+        this.name = name;
+        this.length = length;
+        this.buttonID = buttonID;
+        this.coordinates = [];
+    }
+}
+
+/* create the 5 ships for the game */
+let carrier = new Ship("Carrier", 5, "pcarrier");
+let battleship = new Ship("Battleship", 4, "pbattleship");
+let cruiser = new Ship("Cruiser", 3, "pcruiser");
+let submarine = new Ship("Submarine", 3, "psubmarine");
+let destroyer = new Ship("Destroyer", 2, "pdestroyer");
+
 
 /* add event listeners to player buttons and gameboard */
 const pbtnwrapper = document.getElementById("pships");
@@ -22,8 +40,14 @@ pbtnwrapper!.addEventListener("click", event => {
         return;
     }
     currentShip = (<HTMLButtonElement>event.target).textContent;
-    currentShipID = (<HTMLButtonElement>event.target).id;
-    shipSelected();
+    currShipLength = shipSelected().length;
+    currentShipID = shipSelected().buttonID;
+    /* set coordinates to null if player changes ship */
+    firstCell = null;
+    secondCell = null;
+
+    printLog("You have selected: <span>" + currentShip + "</span>." +
+        " It has length, <span>" + currShipLength + "</span>. Click on one of the cells to place your ship.");
 })
 
 for (let i = 0; i < pboardwrapper.length; i++) {
@@ -42,45 +66,48 @@ for (let i = 0; i < pboardwrapper.length; i++) {
                 firstCell = parseInt((<HTMLTableCellElement>event.target).getElementsByTagName("div")[0].id);
                 printLog("You have selected <span>" + firstCell + "</span> " +
                     "as your starting position.");
-                document.getElementById(String(firstCell))!.innerText
             }
         }
     })
 }
 
 /* add class to all board div */
-for(let i = 0; i <= 99; i++){
+for (let i = 0; i <= 99; i++) {
     let div: HTMLElement | null = document.getElementById(String(i));
     div!.classList.add("d-flex");
     div!.classList.add("justify-content-center");
 }
 
-function shipSelected() {
-    if (currentShip == "Carrier") {
-        currShipLength = 5;
+function shipSelected(): Ship {
+    if (currentShip == carrier.name) {
+        return carrier;
     }
-    if (currentShip == "Battleship") {
-        currShipLength = 4;
+    if (currentShip == battleship.name) {
+        return battleship;
     }
-    if (currentShip == "Cruiser") {
-        currShipLength = 3;
+    if (currentShip == cruiser.name) {
+        return cruiser;
     }
-    if (currentShip == "Submarine") {
-        currShipLength = 3;
-    }
-    if (currentShip == "Destroyer") {
-        currShipLength = 2;
+    if (currentShip == submarine.name) {
+        return submarine;
     }
 
-    printLog("You have selected: <span>" + currentShip + "</span>." +
-        " It has length, <span>" + currShipLength + "</span>. Click on one of the cells to place your ship.");
+    return destroyer;
 }
 
 function placeShip() {
     if (checkCoordinates()) {
         checkOverlap();
         /* if ship has been placed */
-        (<HTMLButtonElement> document.getElementById(currentShipID)).disabled = true;
+        (<HTMLButtonElement>document.getElementById(currentShipID)).disabled = true;
+        currentShipID = "";
+        currShipLength = null;
+        currentShip = null;
+    }
+
+    if (allCells.length == 17) {
+        document.getElementById("start")!.style.display = "block";
+        generateCPUShips();
     }
 
     firstCell = null;
@@ -159,11 +186,16 @@ function generateCoordinates(larger: number, smaller: number) {
             placeOnBoard(i);
         }
     }
-    function placeOnBoard(coord: number){
+
+    function placeOnBoard(coord: number) {
         allCells.push(coord);
-        document.getElementById(String(coord))!.innerText = "#";
+        document.getElementById(String(coord))!.innerText = "⚓";
         document.getElementById(String(coord))!.style.color = "#ffd5d5";
     }
 
     printLog("You have placed your <span>" + currentShip + "</span>!");
+}
+
+function generateCPUShips() {
+
 }
