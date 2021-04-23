@@ -1,16 +1,17 @@
 "use strict";
-let currentShip = null;
+let shipDirection;
+let attackCell;
 let firstCell = null;
 let secondCell = null;
 let currShipLength = null;
 let currentShipID;
-let shipDirection;
+let currentShip = null;
 let cpuShipsPlaced = false;
-let attackCell;
-let cpuShipCoordinates;
 let gameOver = false;
 let attackedCellsByCpu;
-let allCells = [];
+let cpuShipCells;
+let allShipCells = [];
+let allcpuShipCells = [];
 /* create a ship class */
 class Ship {
     constructor(name, length, buttonID) {
@@ -88,18 +89,25 @@ for (let i = 0; i < cpuboardwrapper.length; i++) {
         }
     });
 }
-document.getElementById("start").addEventListener("click", ev => {
-    // generateCPUShips();
-    cpuShipCoordinates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-    cpucarrier.coordinates = [1, 2, 3, 4, 5];
-    cpubattleship.coordinates = [6, 7, 8, 9];
-    cpucruiser.coordinates = [10, 11, 12];
-    cpusubmarine.coordinates = [13, 14, 15];
-    cpudestroyer.coordinates = [15, 16];
+document.getElementById("start").addEventListener("click", () => {
     attackedCellsByCpu = [];
     for (let i = 0; i <= 99; i++) {
         attackedCellsByCpu.push(i);
     }
+    cpuShipCells = [];
+    for (let i = 0; i <= 99; i++) {
+        cpuShipCells.push(i);
+    }
+    cpucarrier.coordinates = generateCPUShips(5);
+    cpubattleship.coordinates = generateCPUShips(4);
+    cpucruiser.coordinates = generateCPUShips(3);
+    cpusubmarine.coordinates = generateCPUShips(3);
+    cpudestroyer.coordinates = generateCPUShips(2);
+    addToAllCPUCells(cpucarrier.coordinates);
+    addToAllCPUCells(cpubattleship.coordinates);
+    addToAllCPUCells(cpucruiser.coordinates);
+    addToAllCPUCells(cpusubmarine.coordinates);
+    addToAllCPUCells(cpudestroyer.coordinates);
     cpuShipsPlaced = true;
     document.getElementById("start").disabled = true;
     printLog("CPU ships have been set. Destroy it's ships by clicking on the CPU board!");
@@ -137,7 +145,7 @@ function placeShip() {
         currShipLength = null;
         currentShip = null;
     }
-    if (allCells.length == 17) {
+    if (allShipCells.length == 17) {
         document.getElementById("start").style.display = "block";
     }
     firstCell = null;
@@ -190,7 +198,7 @@ function checkOverlap() {
 function hasOverlap(larger, smaller) {
     if (shipDirection < 0) {
         for (let i = smaller; i <= larger; i++) {
-            if (allCells.includes(i)) {
+            if (allShipCells.includes(i)) {
                 printLog("Your selection <span>overlaps</span> with another ship");
                 return true;
             }
@@ -198,7 +206,7 @@ function hasOverlap(larger, smaller) {
     }
     else {
         for (let i = smaller; i <= larger; i += 10) {
-            if (allCells.includes(i)) {
+            if (allShipCells.includes(i)) {
                 printLog("Your selection <span>overlaps</span> with another ship");
                 return true;
             }
@@ -218,7 +226,7 @@ function generateCoordinates(larger, smaller) {
         }
     }
     function placeOnBoard(coord) {
-        allCells.push(coord);
+        allShipCells.push(coord);
         shipSelected().coordinates.push(coord);
         document.getElementById(String(coord)).innerText = "⚓";
     }
@@ -226,9 +234,9 @@ function generateCoordinates(larger, smaller) {
 }
 function playGame() {
     if (document.getElementById("c" + attackCell).innerText == "") {
-        if (cpuShipCoordinates.includes(attackCell)) {
+        if (allcpuShipCells.includes(attackCell)) {
             document.getElementById("c" + attackCell).innerText = "💥";
-            cpuShipCoordinates.splice(cpuShipCoordinates.indexOf(attackCell), 1);
+            allcpuShipCells.splice(allcpuShipCells.indexOf(attackCell), 1);
             checkCPUShip(attackCell);
         }
         else {
@@ -272,9 +280,9 @@ function checkCPUShip(attackCell) {
 }
 function attackPlayer() {
     let newAttack = attackedCellsByCpu.splice(Math.floor(Math.random() * attackedCellsByCpu.length), 1)[0];
-    if (allCells.includes(newAttack)) {
+    if (allShipCells.includes(newAttack)) {
         document.getElementById(String(newAttack)).innerText = "💥";
-        allCells.splice(allCells.indexOf(newAttack), 1);
+        allShipCells.splice(allShipCells.indexOf(newAttack), 1);
         checkPlayerShip(newAttack);
     }
     else {
@@ -315,114 +323,82 @@ function checkPlayerShip(attackCell) {
     }
 }
 function checkWinner() {
-    if (cpuShipCoordinates.length == 0) {
+    if (allcpuShipCells.length == 0) {
         printLog("Player WINS! Refresh the page to play again.");
         gameOver = true;
     }
-    if (allCells.length == 0) {
+    if (allShipCells.length == 0) {
         printLog("CPU WINS! Refresh the page to play again.");
         gameOver = true;
     }
 }
-// /* randomly place ships on the board */
-// function generateCPUShips() {
-//     let shipPlaced = false;
-//     let shipCoords = [];
-//
-//     // keep generating ship placement possibilities till one works
-//     do {
-//
-//         let randomTile = Math.floor(Math.random() * emptyTiles.length);
-//
-//         if (Math.random() >= 0.5) {
-//             let directionX = true;
-//         } else {
-//             let directionX = false;
-//         }
-//
-//         // check possible placement in X direction
-//         if (directionX == true) {
-//             let rowCheck = randomTile % 10;
-//             // if ship fits generate rest of coordinates and check for overlap
-//             if (rowCheck + (shipLength - 1) <= 9) {
-//                 let overlap = false;
-//                 for (let i = 0; i < shipLength; i++) {
-//                     if (!emptyTiles.includes(randomTile + i)) {
-//                         overlap = true;
-//                     }
-//                 }
-//
-//                 if (overlap == false) {
-//                     // place ship on CPU board
-//                     for (let i = 0; i < shipLength; i++) {
-//                         // add tiles to ship arrays
-//                         shipCoords.push(randomTile + i);
-//
-//                         // remove tiles from being chosen again
-//                         let index = emptyTiles.indexOf(randomTile + i);
-//                         if (index != -1) {
-//                             emptyTiles.splice(index, 1);
-//                         }
-//
-//                         // end loop and return array
-//                         shipPlaced = true;
-//                     }
-//                 }
-//                 // ship can't fit due to overlap
-//                 else {
-//                     generateShipCoords(shipLength);
-//                 }
-//             }
-//             // ship can't fit given the starting tile - restart loop
-//             else {
-//                 generateShipCoords(shipLength);
-//             }
-//         }
-//
-//         // check possible placement in Y direction
-//         else {
-//             if (randomTile + shipLength * 10 <= 99) {
-//                 // check if overlap exists
-//                 let overlap = false;
-//                 for (let i = 0; i < shipLength * 10; i += 10) {
-//                     if (!emptyTiles.includes(randomTile + i)) {
-//                         overlap = true;
-//                     }
-//                 }
-//
-//                 // no overlap found
-//                 if (overlap == false) {
-//                     // place ship on CPU board
-//                     for (let i = 0; i < shipLength * 10; i += 10) {
-//                         // add tiles to ship arrays
-//                         shipCoords.push(randomTile + i);
-//
-//                         // remove tiles from being chosen again
-//                         let index = emptyTiles.indexOf(randomTile + i);
-//                         if (index != -1) {
-//                             emptyTiles.splice(index, 1);
-//                         }
-//
-//                         // end loop and return array
-//                         shipPlaced = true;
-//                     }
-//                 }
-//
-//                 // ship can't fit due to overlap
-//                 else {
-//                     generateShipCoords(shipLength);
-//                 }
-//             }
-//
-//             // ship can't fit given the starting tile - restart loop
-//             else {
-//                 generateShipCoords(shipLength);
-//             }
-//         }
-//     } while (!shipPlaced);
-//     return shipCoords;
-// }
-//
-//
-// (<HTMLButtonElement>document.getElementById("start")).disabled = true;
-// }
+/* randomly place ships on the board */
+function generateCPUShips(shipLength) {
+    let shipPlaced = false;
+    let shipCoords = [];
+    let directionX;
+    while (!shipPlaced) {
+        do {
+            let randomCell = Math.floor(Math.random() * cpuShipCells.length);
+            directionX = Math.random() >= 0.5;
+            if (directionX) {
+                let rowCheck = randomCell % 10;
+                if (rowCheck + (shipLength - 1) <= 9) {
+                    let overlap = false;
+                    for (let i = 0; i < shipLength; i++) {
+                        if (!cpuShipCells.includes(randomCell + i)) {
+                            overlap = true;
+                        }
+                    }
+                    if (!overlap) {
+                        for (let i = 0; i < shipLength; i++) {
+                            shipCoords.push(randomCell + i);
+                            let index = cpuShipCells.indexOf(randomCell + i);
+                            if (index != -1) {
+                                cpuShipCells.splice(index, 1);
+                            }
+                            shipPlaced = true;
+                        }
+                    }
+                    else {
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+            else {
+                if (randomCell + shipLength * 10 <= 99) {
+                    let overlap = false;
+                    for (let i = 0; i < shipLength * 10; i += 10) {
+                        if (!cpuShipCells.includes(randomCell + i)) {
+                            overlap = true;
+                        }
+                    }
+                    if (!overlap) {
+                        for (let i = 0; i < shipLength * 10; i += 10) {
+                            shipCoords.push(randomCell + i);
+                            let index = cpuShipCells.indexOf(randomCell + i);
+                            if (index != -1) {
+                                cpuShipCells.splice(index, 1);
+                            }
+                            shipPlaced = true;
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+        } while (!shipPlaced);
+    }
+    return shipCoords;
+}
+function addToAllCPUCells(array) {
+    for (let i = 0; i < array.length; i++) {
+        allcpuShipCells.push(array[i]);
+    }
+}
