@@ -98,3 +98,12 @@ td:hover {
     margin-top: 1.5em;
     display: none;
 }
+
+/* extra styles for player.html */
+#name{
+    margin-left: 1em;
+}
+
+#oships {
+    margin-left: 1.75em;
+}
