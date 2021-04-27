@@ -16,6 +16,7 @@ body {
 .boardname {
     font-size: 3em;
     color: #e84545;
+    margin-top: -1em;
 }
 
 .log {
@@ -25,7 +26,7 @@ body {
     color: #e84545;
 }
 
-span{
+span {
     color: #ffd5d5;
 }
 
@@ -92,7 +93,7 @@ td:hover {
     border: none;
 }
 
-#start{
+#start {
     font-size: 1em;
     width: auto;
     margin-top: 1.5em;
@@ -100,10 +101,29 @@ td:hover {
 }
 
 /* extra styles for player.html */
-#name{
+#opponentname {
     margin-left: 1em;
 }
 
 #oships {
     margin-left: 1.75em;
 }
+
+.multiplayer{
+    margin-top: 5em;
+}
+
+.mp{
+    justify-content: center;
+    margin-top: 0.25em;
+}
+
+.form-control{
+    margin-top: 0.25em;
+}
+
+.mpbtn{
+    width: auto;
+    font-size: 0.5em;
+}
+
