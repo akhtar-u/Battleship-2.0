@@ -21,8 +21,11 @@
     <div class="col-sm d-flex justify-content-center">
         <p>Player</p>
     </div>
+    <div class="col-2 d-flex justify-content-center">
+
+    </div>
     <div class="col-sm d-flex justify-content-center">
-        <p id="name">Opponent</p>
+        <p id="opponentname">Opponent</p>
     </div>
 </div>
 <div class="board row">
@@ -374,6 +377,23 @@
                     </td>
                 </tr>
             </table>
+        </div>
+    </div>
+    <div class="multiplayer col-2">
+        <div class="mp row">
+            <input id="playername" class="form-control" placeholder="Enter name" type="text">
+        </div>
+        <div class="mp row">
+            <button id="newgamebtn" type="button" class="mpbtn btn btn-danger">Create new game</button>
+        </div>
+        <div class="mp row">
+            <button id="randomgamebtn" type="button" class="mpbtn btn btn-danger">Connect to random game</button>
+        </div>
+        <div class="mp row">
+            <input id="gameID" class="form-control" placeholder="Enter game ID" type="text">
+        </div>
+        <div class="mp row">
+            <button id="idgamebtn" type="button" class="mpbtn btn btn-danger">Connect by game ID</button>
         </div>
     </div>
     <div id="oboard" class="col-sm d-flex justify-content-center">
@@ -735,6 +755,9 @@
         <button id="pcruiser" type="button" class="shipbtn btn btn-danger">Cruiser</button>
         <button id="psubmarine" type="button" class="shipbtn btn btn-danger">Submarine</button>
         <button id="pdestroyer" type="button" class="shipbtn btn btn-danger">Destroyer</button>
+    </div>
+    <div class="col-2 d-flex justify-content-center">
+
     </div>
     <div id="oships" class="col-sm d-flex justify-content-center">
         <button disabled="disabled" id="ocarrier" type="button" class="shipbtn btn btn-danger">Carrier</button>
