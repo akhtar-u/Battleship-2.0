@@ -83,20 +83,20 @@ for (let i = 0; i < oppboardwrapper.length; i++) {
         }
     });
 }
-document.getElementById("start").addEventListener("click", () => {
-    attackedCellsByCpu = [];
-    for (let i = 0; i <= 99; i++) {
-        attackedCellsByCpu.push(i);
-    }
-    cpuShipCells = [];
-    for (let i = 0; i <= 99; i++) {
-        cpuShipCells.push(i);
-    }
-
-    cpuShipsPlaced = true;
-    document.getElementById("start").disabled = true;
-    printLog("CPU ships have been set. Destroy it's ships by clicking on the CPU board!");
-});
+// document.getElementById("start").addEventListener("click", () => {
+//     attackedCellsByCpu = [];
+//     for (let i = 0; i <= 99; i++) {
+//         attackedCellsByCpu.push(i);
+//     }
+//     cpuShipCells = [];
+//     for (let i = 0; i <= 99; i++) {
+//         cpuShipCells.push(i);
+//     }
+//
+//     cpuShipsPlaced = true;
+//     document.getElementById("start").disabled = true;
+//     printLog("CPU ships have been set. Destroy it's ships by clicking on the CPU board!");
+// });
 
 
 for (let i = 0; i <= 99; i++) {
@@ -138,7 +138,7 @@ function placeShip() {
         currentShip = null;
     }
     if (allShipCells.length === 17) {
-        document.getElementById("start").style.display = "block";
+
     }
     firstCell = null;
     secondCell = null;
@@ -276,4 +276,113 @@ function checkPlayerShip(attackCell) {
     if (destroyer.coordinates.length === 0) {
         document.getElementById("pdestroyer").style.textDecoration = "line-through white 0.2em";
     }
+}
+
+/* websocket functions */
+const url = "http://localhost:8080";
+let stompClient;
+let isInGame = false;
+
+let playerBoardName = document.getElementById("playerboardname");
+let oppBoardName = document.getElementById("opponentboardname");
+let playerNameInput = document.getElementById("playername");
+let gameIDInput = document.getElementById("gameID");
+let newGameBtn = document.getElementById("newgamebtn");
+let randomGameBtn = document.getElementById("randomgamebtn");
+let gameIDbtn = document.getElementById("gameIDbtn");
+
+let newGameID;
+let oppNameInput;
+
+document.getElementById("newgamebtn").addEventListener("click", ev => {
+    if (playerNameInput.value !== "") {
+        createNewGame();
+    } else {
+        printLog("No name entered. Cannot create a new game without a player name!");
+    }
+})
+
+document.getElementById("randomgamebtn").addEventListener("click", ev => {
+    if (playerNameInput.value !== "") {
+        connectToRandomGame()
+    } else {
+        printLog("No name entered. Cannot connect to random game without a player name!");
+    }
+})
+
+document.getElementById("gameIDbtn").addEventListener("click", ev => {
+    if (playerNameInput.value !== "" && gameIDInput.value !== "") {
+        connectBygameID();
+    } else {
+        printLog("No name or game ID entered. Cannot connect to game without a player name or game ID!");
+    }
+})
+
+function playerShipsPlaced() {
+    if (allShipCells.length !== 17) {
+        printLog("Please place your ships before starting or connecting to a game!");
+        return false;
+    }
+    return true;
+}
+
+function connectToSocket(gameID) {
+    let socket = new SockJS(url + "/gameplay");
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log("connected to frame: ", frame);
+        stompClient.subscribe("/topic/game-progress" + gameID, function (response) {
+            let data = JSON.parse(response.body);
+            console.log(data);
+        })
+    })
+
+}
+
+function createNewGame() {
+    if (playerShipsPlaced()) {
+        playerBoardName.innerText = playerNameInput.value;
+
+        axios.post(url + "/game/start", {
+            name: playerNameInput.value
+        })
+            .then((response) => {
+                newGameID = response.data.gameID;
+                connectToSocket(newGameID);
+                printLog("New game created with gameID: " + newGameID);
+                disableConnectButtons();
+            }, (error) => {
+                console.log(error);
+            });
+    }
+}
+
+function connectToRandomGame() {
+    if (playerShipsPlaced()) {
+        axios.post(url + "/game/connect/random", {
+            name: playerNameInput.value
+        })
+            .then((response) => {
+                newGameID = response.data.gameID;
+                connectToSocket(newGameID);
+                printLog("You have connected with: " + response.data.player1.name);
+                oppBoardName.innerText = response.data.player1.name;
+                disableConnectButtons();
+            }, (error) => {
+                console.log(error);
+                printLog("No game found! Try creating a new game instead.");
+            });
+    }
+}
+
+function connectBygameID() {
+
+}
+
+function disableConnectButtons() {
+    newGameBtn.disabled = true;
+    randomGameBtn.disabled = true;
+    gameIDbtn.disabled = true;
+    gameIDInput.disabled = true;
+    playerNameInput.disabled = true;
 }

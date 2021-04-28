@@ -105,30 +105,35 @@ namespace cpu {
     }
 
     document.getElementById("start")!.addEventListener("click", () => {
-        attackedCellsByCpu = [];
-        for (let i = 0; i <= 99; i++) {
-            attackedCellsByCpu.push(i);
+        if (gameOver) {
+
+            window.location.href = "../index.html";
+        } else {
+            attackedCellsByCpu = [];
+            for (let i = 0; i <= 99; i++) {
+                attackedCellsByCpu.push(i);
+            }
+            cpuShipCells = [];
+            for (let i = 0; i <= 99; i++) {
+                cpuShipCells.push(i);
+            }
+
+            cpucarrier.coordinates = generateCPUShips(5);
+            cpubattleship.coordinates = generateCPUShips(4);
+            cpucruiser.coordinates = generateCPUShips(3);
+            cpusubmarine.coordinates = generateCPUShips(3);
+            cpudestroyer.coordinates = generateCPUShips(2);
+
+            addToAllCPUCells(cpucarrier.coordinates);
+            addToAllCPUCells(cpubattleship.coordinates);
+            addToAllCPUCells(cpucruiser.coordinates);
+            addToAllCPUCells(cpusubmarine.coordinates);
+            addToAllCPUCells(cpudestroyer.coordinates);
+
+            cpuShipsPlaced = true;
+            (<HTMLButtonElement>document.getElementById("start")).disabled = true;
+            printLog("CPU ships have been set. Destroy it's ships by clicking on the CPU board!");
         }
-        cpuShipCells = [];
-        for (let i = 0; i <= 99; i++) {
-            cpuShipCells.push(i);
-        }
-
-        cpucarrier.coordinates = generateCPUShips(5);
-        cpubattleship.coordinates = generateCPUShips(4);
-        cpucruiser.coordinates = generateCPUShips(3);
-        cpusubmarine.coordinates = generateCPUShips(3);
-        cpudestroyer.coordinates = generateCPUShips(2);
-
-        addToAllCPUCells(cpucarrier.coordinates);
-        addToAllCPUCells(cpubattleship.coordinates);
-        addToAllCPUCells(cpucruiser.coordinates);
-        addToAllCPUCells(cpusubmarine.coordinates);
-        addToAllCPUCells(cpudestroyer.coordinates);
-
-        cpuShipsPlaced = true;
-        (<HTMLButtonElement>document.getElementById("start")).disabled = true;
-        printLog("CPU ships have been set. Destroy it's ships by clicking on the CPU board!");
     })
 
     /* add class to all board div */
@@ -355,11 +360,19 @@ namespace cpu {
         if (allcpuShipCells.length == 0) {
             printLog("Player WINS! Refresh the page to play again.");
             gameOver = true;
+            showHomeButton();
         }
         if (allShipCells.length == 0) {
             printLog("CPU WINS! Refresh the page to play again.");
             gameOver = true;
+            showHomeButton();
         }
+    }
+
+    function showHomeButton() {
+        let homeButton = <HTMLButtonElement>document.getElementById("start");
+        homeButton.disabled = false;
+        homeButton.innerText = "Main Menu";
     }
 
     /* randomly place ships on the board */

@@ -34,7 +34,7 @@ public class GameController {
         return ResponseEntity.ok(gameService.connectToGame(request.getPlayer(), request.getGameID()));
     }
 
-    @PostMapping("connect/random")
+    @PostMapping("/connect/random")
     public ResponseEntity<Game> connectRandom(@RequestBody Player player) throws NotFoundException {
         log.info("connect random: {}", player);
         return ResponseEntity.ok(gameService.connectToRandomGame(player));
