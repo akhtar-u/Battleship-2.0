@@ -279,9 +279,8 @@ function checkPlayerShip(attackCell) {
 }
 
 /* websocket functions */
-const url = "https://shipsahoy.herokuapp.com";
+const url = "http://localhost:8080";
 let stompClient;
-let isInGame = false;
 
 let playerBoardName = document.getElementById("playerboardname");
 let oppBoardName = document.getElementById("opponentboardname");
@@ -289,10 +288,11 @@ let playerNameInput = document.getElementById("playername");
 let gameIDInput = document.getElementById("gameID");
 let newGameBtn = document.getElementById("newgamebtn");
 let randomGameBtn = document.getElementById("randomgamebtn");
-let gameIDbtn = document.getElementById("gameIDbtn");
+let gameIDBtn = document.getElementById("gameIDbtn");
 
 let newGameID;
 let oppNameInput;
+let playerType;
 
 document.getElementById("newgamebtn").addEventListener("click", ev => {
     if (playerNameInput.value !== "") {
@@ -349,7 +349,11 @@ function createNewGame() {
             .then((response) => {
                 newGameID = response.data.gameID;
                 connectToSocket(newGameID);
-                printLog("New game created with gameID: " + newGameID);
+
+                playerType = "1";
+                printLog("New game created with game ID: " + newGameID);
+
+
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
@@ -359,14 +363,20 @@ function createNewGame() {
 
 function connectToRandomGame() {
     if (playerShipsPlaced()) {
+        playerBoardName.innerText = playerNameInput.value;
+
         axios.post(url + "/game/connect/random", {
             name: playerNameInput.value
         })
             .then((response) => {
                 newGameID = response.data.gameID;
                 connectToSocket(newGameID);
-                printLog("You have connected with: " + response.data.player1.name);
-                oppBoardName.innerText = response.data.player1.name;
+
+                playerType = "2";
+                oppNameInput = response.data.player1.name;
+                printLog("You have connected with: " + oppNameInput);
+                oppBoardName.innerText = oppNameInput;
+
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
@@ -376,13 +386,36 @@ function connectToRandomGame() {
 }
 
 function connectBygameID() {
+    if (playerShipsPlaced()) {
+        playerBoardName.innerText = playerNameInput.value;
 
+        axios.post(url + "/game/connect", {
+            player: {
+                name: playerNameInput.value
+            },
+            gameID: gameIDInput.value
+        })
+            .then((response) => {
+                newGameID = response.data.gameID;
+                connectToSocket(newGameID);
+
+                playerType = "2";
+                oppNameInput = response.data.player1.name;
+                printLog("You have connected with: " + oppNameInput);
+                oppBoardName.innerText = oppNameInput;
+
+                disableConnectButtons();
+            }, (error) => {
+                console.log(error);
+                printLog("No game found! Try creating a new game instead.");
+            });
+    }
 }
 
 function disableConnectButtons() {
     newGameBtn.disabled = true;
     randomGameBtn.disabled = true;
-    gameIDbtn.disabled = true;
+    gameIDBtn.disabled = true;
     gameIDInput.disabled = true;
     playerNameInput.disabled = true;
 }
