@@ -358,12 +358,12 @@ namespace cpu {
 
     function checkWinner() {
         if (allcpuShipCells.length == 0) {
-            printLog("Player WINS! Refresh the page to play again.");
+            printLog("Player WINS!");
             gameOver = true;
             showHomeButton();
         }
         if (allShipCells.length == 0) {
-            printLog("CPU WINS! Refresh the page to play again.");
+            printLog("CPU WINS!");
             gameOver = true;
             showHomeButton();
         }
