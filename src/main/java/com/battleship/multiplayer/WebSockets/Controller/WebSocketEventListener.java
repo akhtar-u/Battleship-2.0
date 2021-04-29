@@ -1,6 +1,8 @@
 package com.battleship.multiplayer.WebSockets.Controller;
 
 
+import com.battleship.multiplayer.WebSockets.model.Game;
+import com.battleship.multiplayer.WebSockets.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ import java.util.Map;
 public class WebSocketEventListener {
 
 
-    private static Map<String, String> map = new HashMap<>();
+    private static Map<String, String> sessionMap = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketEventListener.class);
 
     @Autowired
@@ -39,18 +41,18 @@ public class WebSocketEventListener {
 
         String gameID = nativeHeaders.get("gameID").get(0);
         String sessionID = event.getMessage().getHeaders().get("simpSessionId").toString();
-        map.put(sessionID, gameID);
+        sessionMap.put(sessionID, gameID);
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(final SessionDisconnectEvent event) {
-
-        LOGGER.info(map.get(event.getSessionId()));
+        String gameID = sessionMap.get(event.getSessionId());
+        Game game = GameStorage.getInstance().getGames().get(gameID);
 
         ConnectRequest request = new ConnectRequest();
         request.setType("ERROR");
 
-        sendingOperations.convertAndSend("/topic/game-progress" + map.get(event.getSessionId()), request);
+        sendingOperations.convertAndSend("/topic/game-progress" + gameID, request);
 
     }
 }
