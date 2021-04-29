@@ -9,6 +9,7 @@ import com.battleship.multiplayer.WebSockets.model.Game;
 import com.battleship.multiplayer.WebSockets.model.GamePlay;
 import com.battleship.multiplayer.WebSockets.model.Player;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import com.battleship.multiplayer.WebSockets.service.GameService;
@@ -19,11 +20,11 @@ import com.battleship.multiplayer.WebSockets.service.GameService;
 @RequestMapping("/game")
 public class GameController {
 
-        private final GameService gameService;
-        private final SimpMessagingTemplate simpMessagingTemplate;
+    private final GameService gameService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping("/start")
-    public ResponseEntity<Game> start(@RequestBody Player player){
+    public ResponseEntity<Game> start(@RequestBody Player player) {
         log.info("start game request: {}", player);
         return ResponseEntity.ok(gameService.createGame(player));
     }
