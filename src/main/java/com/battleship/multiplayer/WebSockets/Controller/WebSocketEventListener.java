@@ -1,6 +1,6 @@
 package com.battleship.multiplayer.WebSockets.Controller;
 
-import com.battleship.multiplayer.WebSockets.model.Player;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,11 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketConnectListener(final SessionConnectedEvent event) {
         LOGGER.info("PEEP PEEP. NEW CONNECTION!");
+        LOGGER.info(event.getMessage().getHeaders().toString());
+        final StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+//        headerAccessor.getSessionAttributes().put()
+
+        LOGGER.info(event.getMessage().getHeaders().get("simpSessionId").toString());
     }
 
     @EventListener
@@ -36,6 +41,6 @@ public class WebSocketEventListener {
 //        request.setMsgType("ERROR");
 //
 //        sendingOperations.convertAndSend("/topic/game-progress" + gameID, request);
-        LOGGER.info("/topic/game-progress" + gameID);
+        LOGGER.info(event.toString());
     }
 }

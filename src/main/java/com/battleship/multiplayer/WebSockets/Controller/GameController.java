@@ -9,7 +9,6 @@ import com.battleship.multiplayer.WebSockets.model.Game;
 import com.battleship.multiplayer.WebSockets.model.GamePlay;
 import com.battleship.multiplayer.WebSockets.model.Player;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import com.battleship.multiplayer.WebSockets.service.GameService;
