@@ -367,10 +367,8 @@ const onMessageReceived = (payload) => {
         }
 
     } else if (message.type === "ERROR") {
-        printLog("<span>" + message.name + "</span> has left your game! Please create a new game.");
-    }
-    else{
-        printLog("No CLUE!");
+        alert("Your opponent has disconnected! Please create a new game.");
+        gameStarted = false;
     }
 }
 
