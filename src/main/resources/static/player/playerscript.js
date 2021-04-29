@@ -278,10 +278,7 @@ function checkPlayerShip(attackCell) {
     }
 }
 
-/* websocket functions */
-const url = "http://localhost:8080";
-let stompClient;
-
+/* multiplayer functions */
 let playerBoardName = document.getElementById("playerboardname");
 let oppBoardName = document.getElementById("opponentboardname");
 let playerNameInput = document.getElementById("playername");
@@ -326,34 +323,51 @@ function playerShipsPlaced() {
     return true;
 }
 
-function connectToSocket(gameID) {
-    let socket = new SockJS(url + "/gameplay");
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        console.log("connected to frame: ", frame);
-        stompClient.subscribe("/topic/game-progress" + gameID, function (response) {
-            let data = JSON.parse(response.body);
-            console.log(data);
-        })
-    })
+function disableConnectButtons() {
+    newGameBtn.disabled = true;
+    randomGameBtn.disabled = true;
+    gameIDBtn.disabled = true;
+    gameIDInput.disabled = true;
+    playerNameInput.disabled = true;
+}
 
+/* websocket functions */
+const url = "http://localhost:8080";
+let stompClient;
+
+const connectSocket = () => {
+    const socket = new SockJS(url + "/gameplay");
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, onConnected, onError)
+}
+
+const onError = (error) => {
+    printLog("Connection could not be established. Refresh the page and try again!");
+}
+
+const onConnected = () => {
+    stompClient.subscribe("/topic/game-progress" + newGameID, onMessageReceived);
+    stompClient.send("/topic/game-progress" + newGameID, {}, JSON.stringify({name: playerNameInput.value}));
+}
+
+const onMessageReceived = (payload) => {
+    const message = JSON.parse(payload.body);
+    console.log(message);
 }
 
 function createNewGame() {
     if (playerShipsPlaced()) {
-        playerBoardName.innerText = playerNameInput.value;
-
         axios.post(url + "/game/start", {
             name: playerNameInput.value
         })
             .then((response) => {
                 newGameID = response.data.gameID;
-                connectToSocket(newGameID);
+                connectSocket();
 
+                playerBoardName.innerText = playerNameInput.value;
                 playerType = "1";
+
                 printLog("New game created with game ID: " + newGameID);
-
-
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
@@ -363,15 +377,14 @@ function createNewGame() {
 
 function connectToRandomGame() {
     if (playerShipsPlaced()) {
-        playerBoardName.innerText = playerNameInput.value;
-
         axios.post(url + "/game/connect/random", {
             name: playerNameInput.value
         })
             .then((response) => {
                 newGameID = response.data.gameID;
-                connectToSocket(newGameID);
+                connectSocket();
 
+                playerBoardName.innerText = playerNameInput.value;
                 playerType = "2";
                 oppNameInput = response.data.player1.name;
                 printLog("You have connected with: " + oppNameInput);
@@ -387,7 +400,6 @@ function connectToRandomGame() {
 
 function connectBygameID() {
     if (playerShipsPlaced()) {
-        playerBoardName.innerText = playerNameInput.value;
 
         axios.post(url + "/game/connect", {
             player: {
@@ -399,6 +411,7 @@ function connectBygameID() {
                 newGameID = response.data.gameID;
                 connectToSocket(newGameID);
 
+                playerBoardName.innerText = playerNameInput.value;
                 playerType = "2";
                 oppNameInput = response.data.player1.name;
                 printLog("You have connected with: " + oppNameInput);
@@ -410,12 +423,4 @@ function connectBygameID() {
                 printLog("No game found! Try creating a new game instead.");
             });
     }
-}
-
-function disableConnectButtons() {
-    newGameBtn.disabled = true;
-    randomGameBtn.disabled = true;
-    gameIDBtn.disabled = true;
-    gameIDInput.disabled = true;
-    playerNameInput.disabled = true;
 }
