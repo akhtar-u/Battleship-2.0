@@ -5,7 +5,7 @@ let secondCell = null;
 let currShipLength = null;
 let currentShipID;
 let currentShip = null;
-let cpuShipsPlaced = false;
+let gameStarted = false;
 let gameOver = false;
 let attackedCellsByCpu;
 let cpuShipCells;
@@ -73,10 +73,11 @@ for (let i = 0; i < oppboardwrapper.length; i++) {
         if (!isCell) {
             return;
         }
-        if (cpuShipsPlaced) {
+        if (gameStarted) {
             let tempID = event.target.getElementsByTagName("div")[0].id;
             tempID = tempID.slice(1);
             attackCell = parseInt(tempID);
+            sendMessage();
             if (!gameOver) {
                 playGame();
             }
@@ -334,6 +335,7 @@ function disableConnectButtons() {
 /* websocket functions */
 const url = "http://localhost:8080";
 let stompClient;
+let connectionType;
 
 const connectSocket = () => {
     const socket = new SockJS(url + "/gameplay");
@@ -342,17 +344,38 @@ const connectSocket = () => {
 }
 
 const onError = (error) => {
-    printLog("Connection could not be established. Refresh the page and try again!");
 }
 
 const onConnected = () => {
     stompClient.subscribe("/topic/game-progress" + newGameID, onMessageReceived);
-    stompClient.send("/topic/game-progress" + newGameID, {}, JSON.stringify({name: playerNameInput.value}));
+    stompClient.send("/topic/game-progress" + newGameID, {}, JSON.stringify({
+        name: playerNameInput.value,
+        type: connectionType
+    }));
 }
 
 const onMessageReceived = (payload) => {
     const message = JSON.parse(payload.body);
-    console.log(message);
+
+    if (message.type === "NEWGAME") {
+
+    } else if (message.type === "JOIN") {
+        if (playerType === "1") {
+            oppBoardName.innerText = message.name;
+            printLog("<span>" + message.name + "</span> has joined your game!");
+            gameStarted = true;
+        }
+
+    } else if (message.type === "ERROR") {
+        printLog("<span>" + message.name + "</span> has left your game! Please create a new game.");
+    }
+}
+
+function sendMessage() {
+    stompClient.send("/topic/game-progress" + newGameID, {}, JSON.stringify({
+        name: playerNameInput.value,
+        type: connectionType
+    }));
 }
 
 function createNewGame() {
@@ -362,12 +385,12 @@ function createNewGame() {
         })
             .then((response) => {
                 newGameID = response.data.gameID;
+                connectionType = "NEWGAME";
                 connectSocket();
 
+                printLog("New game created with game ID: <span>" + newGameID + "</span>");
                 playerBoardName.innerText = playerNameInput.value;
                 playerType = "1";
-
-                printLog("New game created with game ID: " + newGameID);
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
@@ -382,14 +405,15 @@ function connectToRandomGame() {
         })
             .then((response) => {
                 newGameID = response.data.gameID;
+                connectionType = "JOIN";
                 connectSocket();
 
                 playerBoardName.innerText = playerNameInput.value;
                 playerType = "2";
                 oppNameInput = response.data.player1.name;
-                printLog("You have connected with: " + oppNameInput);
+                printLog("Game found! You are playing against: <span>" + oppNameInput + "</span>");
                 oppBoardName.innerText = oppNameInput;
-
+                gameStarted = true;
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
@@ -409,14 +433,15 @@ function connectBygameID() {
         })
             .then((response) => {
                 newGameID = response.data.gameID;
-                connectToSocket(newGameID);
+                connectionType = "JOIN";
+                connectSocket();
 
                 playerBoardName.innerText = playerNameInput.value;
                 playerType = "2";
                 oppNameInput = response.data.player1.name;
-                printLog("You have connected with: " + oppNameInput);
+                printLog("Connection established! You are playing against: <span>" + oppNameInput + "</span>");
                 oppBoardName.innerText = oppNameInput;
-
+                gameStarted = true;
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
