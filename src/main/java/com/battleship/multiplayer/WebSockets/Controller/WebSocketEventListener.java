@@ -1,46 +1,56 @@
 package com.battleship.multiplayer.WebSockets.Controller;
 
 
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
 @Component
+@AllArgsConstructor
 public class WebSocketEventListener {
 
+
+    private static Map<String, String> map = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketEventListener.class);
 
     @Autowired
-    private SimpMessageSendingOperations sendingOperations;
+    private final SimpMessageSendingOperations sendingOperations;
 
     @EventListener
     public void handleWebSocketConnectListener(final SessionConnectedEvent event) {
         LOGGER.info("PEEP PEEP. NEW CONNECTION!");
-        LOGGER.info(event.getMessage().getHeaders().toString());
-        final StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-//        headerAccessor.getSessionAttributes().put()
+        StompHeaderAccessor stompAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        GenericMessage connectHeader = (GenericMessage) stompAccessor.getHeader(SimpMessageHeaderAccessor.CONNECT_MESSAGE_HEADER);    // FIXME find a way to pass the username to the server
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) connectHeader.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
 
-        LOGGER.info(event.getMessage().getHeaders().get("simpSessionId").toString());
+        String gameID = nativeHeaders.get("gameID").get(0);
+        String sessionID = event.getMessage().getHeaders().get("simpSessionId").toString();
+        map.put(sessionID, gameID);
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(final SessionDisconnectEvent event) {
-//        final StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-//        final Player player = (Player) headerAccessor.getSessionAttributes().get("player");
-//        final String gameID = (String) headerAccessor.getSessionAttributes().get("gameID");
-//
-//        final ConnectRequest request = new ConnectRequest();
-//        request.setGameID(gameID);
-//        request.setPlayer(player);
-//        request.setMsgType("ERROR");
-//
-//        sendingOperations.convertAndSend("/topic/game-progress" + gameID, request);
-        LOGGER.info(event.toString());
+
+        LOGGER.info(map.get(event.getSessionId()));
+
+        ConnectRequest request = new ConnectRequest();
+        request.setType("ERROR");
+
+        sendingOperations.convertAndSend("/topic/game-progress" + map.get(event.getSessionId()), request);
+
     }
 }

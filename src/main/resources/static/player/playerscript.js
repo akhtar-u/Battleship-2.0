@@ -340,7 +340,7 @@ let connectionType;
 const connectSocket = () => {
     const socket = new SockJS(url + "/gameplay");
     stompClient = Stomp.over(socket);
-    stompClient.connect({}, onConnected, onError)
+    stompClient.connect({gameID: newGameID}, onConnected, onError)
 }
 
 const onError = (error) => {
@@ -368,6 +368,9 @@ const onMessageReceived = (payload) => {
 
     } else if (message.type === "ERROR") {
         printLog("<span>" + message.name + "</span> has left your game! Please create a new game.");
+    }
+    else{
+        printLog("No CLUE!");
     }
 }
 

@@ -7,5 +7,5 @@ import com.battleship.multiplayer.WebSockets.model.Player;
 public class ConnectRequest {
     private Player player;
     private String gameID;
-    private String msgType;
+    private String type;
 }
