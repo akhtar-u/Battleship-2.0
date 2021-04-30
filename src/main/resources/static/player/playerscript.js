@@ -7,10 +7,7 @@ let currentShipID;
 let currentShip = null;
 let gameStarted = false;
 let gameOver = false;
-let attackedCellsByCpu;
-let cpuShipCells;
 let allShipCells = [];
-let allcpuShipCells = [];
 
 /* create a ship class */
 class Ship {
@@ -32,6 +29,7 @@ let destroyer = new Ship("Destroyer", 2, "pdestroyer");
 const pbtnwrapper = document.getElementById("pships");
 const pboardwrapper = document.getElementById("pboard").getElementsByTagName("td");
 const oppboardwrapper = document.getElementById("oboard").getElementsByTagName("td");
+
 pbtnwrapper.addEventListener("click", event => {
     const isButton = event.target instanceof HTMLButtonElement;
     if (!isButton) {
@@ -41,12 +39,12 @@ pbtnwrapper.addEventListener("click", event => {
     currShipLength = shipSelected().length;
     currentShipID = shipSelected().buttonID;
 
-    /* set coordinates to null if player changes ship */
     firstCell = null;
     secondCell = null;
     printLog("You have selected: <span>" + currentShip + "</span>." +
         " It has length, <span>" + currShipLength + "</span>. Click on one of the cells to place your ship.");
 });
+
 for (let i = 0; i < pboardwrapper.length; i++) {
     pboardwrapper[i].addEventListener("click", event => {
         const isCell = event.target instanceof HTMLTableCellElement;
@@ -67,38 +65,21 @@ for (let i = 0; i < pboardwrapper.length; i++) {
         }
     });
 }
+
 for (let i = 0; i < oppboardwrapper.length; i++) {
     oppboardwrapper[i].addEventListener("click", event => {
         const isCell = event.target instanceof HTMLTableCellElement;
         if (!isCell) {
             return;
         }
-        if (gameStarted) {
+        if (gameStarted && !gameOver) {
             let tempID = event.target.getElementsByTagName("div")[0].id;
             tempID = tempID.slice(1);
             attackCell = parseInt(tempID);
-            sendMessage();
-            if (!gameOver) {
-                playGame();
-            }
+            playGame();
         }
     });
 }
-// document.getElementById("start").addEventListener("click", () => {
-//     attackedCellsByCpu = [];
-//     for (let i = 0; i <= 99; i++) {
-//         attackedCellsByCpu.push(i);
-//     }
-//     cpuShipCells = [];
-//     for (let i = 0; i <= 99; i++) {
-//         cpuShipCells.push(i);
-//     }
-//
-//     cpuShipsPlaced = true;
-//     document.getElementById("start").disabled = true;
-//     printLog("CPU ships have been set. Destroy it's ships by clicking on the CPU board!");
-// });
-
 
 for (let i = 0; i <= 99; i++) {
     let div = document.getElementById(String(i));
@@ -109,10 +90,12 @@ for (let i = 0; i <= 99; i++) {
     oppdiv.classList.add("justify-content-center");
 }
 
+/* logging */
 function printLog(text) {
     document.getElementById("message").innerHTML = text;
 }
 
+/* ship placement */
 function shipSelected() {
     if (currentShip === carrier.name) {
         return carrier;
@@ -132,21 +115,17 @@ function shipSelected() {
 function placeShip() {
     if (checkCoordinates()) {
         checkOverlap();
-        /* if ship has been placed */
+
         document.getElementById(currentShipID).disabled = true;
         currentShipID = "";
         currShipLength = null;
         currentShip = null;
-    }
-    if (allShipCells.length === 17) {
-
     }
     firstCell = null;
     secondCell = null;
 }
 
 function checkCoordinates() {
-    /* check direction and length */
     if (Math.abs(firstCell - secondCell) < 10) {
         if (Math.abs(firstCell - secondCell) === currShipLength - 1) {
             shipDirection = -1;
@@ -222,6 +201,7 @@ function generateCoordinates(larger, smaller) {
     printLog("You have placed your <span>" + currentShip + "</span>!");
 }
 
+/* gameplay */
 function playGame() {
     if (document.getElementById("o" + attackCell).innerText === "") {
         if (allcpuShipCells.includes(attackCell)) {
@@ -232,6 +212,9 @@ function playGame() {
             document.getElementById("o" + attackCell).innerText = "❌";
         }
         attackPlayer();
+    }
+    if(gameOver){
+        showHomeButton();
     }
 }
 
@@ -277,6 +260,13 @@ function checkPlayerShip(attackCell) {
     if (destroyer.coordinates.length === 0) {
         document.getElementById("pdestroyer").style.textDecoration = "line-through white 0.2em";
     }
+}
+
+/* game over */
+function showHomeButton() {
+    let homeButton = document.getElementById("start");
+        homeButton.disabled = false;
+        homeButton.innerText = "Main Menu";
 }
 
 /* multiplayer functions */
@@ -368,6 +358,7 @@ const onMessageReceived = (payload) => {
 
     } else if (message.type === "ERROR") {
         alert("Your opponent has disconnected! Please create a new game.");
+        printLog("Your opponent has disconnected! Please create a new game.");
         gameStarted = false;
     }
 }
