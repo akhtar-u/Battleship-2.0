@@ -3,6 +3,7 @@ package com.battleship.multiplayer.WebSockets.Controller;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidGameException;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidParameterException;
 import com.battleship.multiplayer.WebSockets.exceptions.NotFoundException;
+import com.battleship.multiplayer.WebSockets.model.GameResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.battleship.multiplayer.WebSockets.model.Game;
@@ -35,7 +36,7 @@ public class GameController {
     }
 
     @PostMapping("/connect/random")
-    public ResponseEntity<Game> connectRandom(@RequestBody ConnectRequest request) throws NotFoundException {
+    public ResponseEntity<GameResponse> connectRandom(@RequestBody ConnectRequest request) throws NotFoundException {
         log.info("connect random: {}", request);
         return ResponseEntity.ok(gameService.connectToRandomGame(request));
     }
