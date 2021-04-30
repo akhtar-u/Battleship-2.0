@@ -23,9 +23,9 @@ public class GameController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping("/start")
-    public ResponseEntity<Game> start(@RequestBody Player player) {
-        log.info("start game request: {}", player);
-        return ResponseEntity.ok(gameService.createGame(player));
+    public ResponseEntity<Game> start(@RequestBody ConnectRequest request) {
+        log.info("start game request: {}", request);
+        return ResponseEntity.ok(gameService.createGame(request));
     }
 
     @PostMapping("/connect")
@@ -35,9 +35,9 @@ public class GameController {
     }
 
     @PostMapping("/connect/random")
-    public ResponseEntity<Game> connectRandom(@RequestBody Player player) throws NotFoundException {
-        log.info("connect random: {}", player);
-        return ResponseEntity.ok(gameService.connectToRandomGame(player));
+    public ResponseEntity<Game> connectRandom(@RequestBody ConnectRequest request) throws NotFoundException {
+        log.info("connect random: {}", request);
+        return ResponseEntity.ok(gameService.connectToRandomGame(request));
     }
 
     @PostMapping("/gameplay")

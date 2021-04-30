@@ -1,5 +1,6 @@
 package com.battleship.multiplayer.WebSockets.service;
 
+import com.battleship.multiplayer.WebSockets.Controller.ConnectRequest;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidGameException;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidParameterException;
 import com.battleship.multiplayer.WebSockets.exceptions.NotFoundException;
@@ -17,10 +18,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GameService {
 
-    public Game createGame(Player player){
+    public Game createGame(ConnectRequest request){
         Game game = new Game();
         game.setGameID(UUID.randomUUID().toString());
-        game.setPlayer1(player);
+        game.setPlayer1(request.getPlayer());
+        game.setPlayerOneShips(request.getShipArray());
         game.setStatus(GameStatus.NEW);
         GameStorage.getInstance().setGames(game);
         return game;
@@ -42,13 +44,14 @@ public class GameService {
         return game;
     }
 
-    public Game connectToRandomGame(Player player2) throws NotFoundException {
+    public Game connectToRandomGame(ConnectRequest request) throws NotFoundException {
         Game game = GameStorage.getInstance().getGames().values().stream()
                 .filter(it->it.getStatus().equals(GameStatus.NEW))
                 .findFirst()
                 .orElseThrow(()-> new NotFoundException("Game not found"));
 
-        game.setPlayer2(player2);
+        game.setPlayer2(request.getPlayer());
+        game.setPlayerTwoShips(request.getShipArray());
         game.setStatus(GameStatus.IN_PROGRESS);
         GameStorage.getInstance().setGames(game);
         return game;
@@ -67,5 +70,4 @@ public class GameService {
         GameStorage.getInstance().setGames(game);
         return game;
     }
-
 }
