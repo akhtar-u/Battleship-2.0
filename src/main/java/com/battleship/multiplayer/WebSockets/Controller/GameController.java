@@ -23,10 +23,9 @@ public class GameController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping("/start")
-    public ResponseEntity<Game> start(@RequestBody ConnectRequest request) {
+    public ResponseEntity<GameResponse> start(@RequestBody ConnectRequest request) {
         log.info("start game request: {}", request);
-        Game game = gameService.createGame(request);
-        return ResponseEntity.ok(game);
+        return ResponseEntity.ok(gameService.createGame(request));
     }
 
     @PostMapping("/connect")

@@ -384,9 +384,7 @@ function createNewGame() {
     if (playerShipsPlaced()) {
         printLog("Creating a new game...")
         axios.post(url + "/game/start", {
-            player: {
-                name: playerNameInput.value
-            },
+            player: playerNameInput.value,
             shipArray: allShipCells
         })
             .then((response) => {
@@ -406,10 +404,9 @@ function createNewGame() {
 
 function connectToRandomGame() {
     if (playerShipsPlaced()) {
+        printLog("Finding a game...");
         axios.post(url + "/game/connect/random", {
-            player: {
-                name: playerNameInput.value
-            },
+            player: playerNameInput.value,
             shipArray: allShipCells
         })
             .then((response) => {
@@ -432,10 +429,9 @@ function connectToRandomGame() {
 
 function connectBygameID() {
     if (playerShipsPlaced()) {
+        printLog("Connecting to game...")
         axios.post(url + "/game/connect", {
-            player: {
-                name: playerNameInput.value
-            },
+            player: playerNameInput.value,
             gameID: gameIDInput.value,
             shipArray: allShipCells
         })
