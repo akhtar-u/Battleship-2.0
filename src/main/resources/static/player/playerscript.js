@@ -406,7 +406,9 @@ function createNewGame() {
 function connectToRandomGame() {
     if (playerShipsPlaced()) {
         axios.post(url + "/game/connect/random", {
-            name: playerNameInput.value,
+            player: {
+                name: playerNameInput.value
+            },
             shipArray: allShipCells
         })
             .then((response) => {
@@ -416,7 +418,8 @@ function connectToRandomGame() {
 
                 playerBoardName.innerText = playerNameInput.value;
                 playerTurn = false;
-                oppNameInput = response.data.player1.name;
+                console.log(response.data);
+                oppNameInput = response.data.player1;
                 oppBoardName.innerText = oppNameInput;
                 disableConnectButtons();
             }, (error) => {
