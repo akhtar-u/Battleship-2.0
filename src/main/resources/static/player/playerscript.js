@@ -327,6 +327,7 @@ function disableConnectButtons() {
 
 /* websocket functions */
 const url = "http://localhost:8080";
+// const url = "https://shipsahoy.herokuapp.com";
 let stompClient;
 let connectionType;
 
