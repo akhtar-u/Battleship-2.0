@@ -382,6 +382,7 @@ function sendMessage(data) {
 
 function createNewGame() {
     if (playerShipsPlaced()) {
+        printLog("Creating a new game...")
         axios.post(url + "/game/start", {
             player: {
                 name: playerNameInput.value
@@ -445,7 +446,7 @@ function connectBygameID() {
 
                 playerBoardName.innerText = playerNameInput.value;
                 playerTurn = false;
-                oppNameInput = response.data.player1.name;
+                oppNameInput = response.data.player1;
                 oppBoardName.innerText = oppNameInput;
                 disableConnectButtons();
             }, (error) => {

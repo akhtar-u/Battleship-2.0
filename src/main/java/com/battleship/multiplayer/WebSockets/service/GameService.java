@@ -22,7 +22,7 @@ public class GameService {
     @Autowired
     private final GameRepository gameRepository;
 
-    public Game createGame(ConnectRequest request){
+    public Game createGame(ConnectRequest request) {
         Game game = new Game();
         game.setGameID(UUID.randomUUID().toString());
         game.setPlayer1(request.getPlayer().getName());
@@ -34,24 +34,30 @@ public class GameService {
         return game;
     }
 
-    public Game connectToGame(Player player2, String gameID) throws InvalidParameterException, InvalidGameException {
-        if(!GameStorage.getInstance().getGames().containsKey(gameID)){
+    public GameResponse connectToGame(ConnectRequest request) throws InvalidParameterException, InvalidGameException {
+        if (gameRepository.findByGameIDIs(request.getGameID()).get(0) == null) {
             throw new InvalidParameterException("No games found with given Game ID");
         }
 
-        Game game = GameStorage.getInstance().getGames().get(gameID);
-        if(game.getPlayer2() != null){
+        Game game = gameRepository.findByGameIDIs(request.getGameID()).get(0);
+        if (game.getPlayer2() != null) {
             throw new InvalidGameException("Game is full");
         }
 
-        game.setPlayer2(player2.getName());
-        game.setStatus(GameStatus.IN_PROGRESS);
-        GameStorage.getInstance().setGames(game);
-        return game;
+        game.setPlayer2(request.getPlayer().getName());
+        game.setPlayerTwoShips(request.getShipArray());
+        gameRepository.save(game);
+
+        GameResponse response = new GameResponse();
+        response.setGameID(game.getGameID());
+        response.setPlayer1(game.getPlayer1());
+        response.setPlayer2(game.getPlayer2());
+
+        return response;
     }
 
     public GameResponse connectToRandomGame(ConnectRequest request) throws NotFoundException {
-        if(gameRepository.findByStatusIs(GameStatus.NEW).get(0) == null){
+        if (gameRepository.findByStatusIs(GameStatus.NEW).get(0) == null) {
             throw new NotFoundException("Game not found");
         }
         Game game = gameRepository.findByStatusIs(GameStatus.NEW).get(0);
@@ -68,12 +74,12 @@ public class GameService {
     }
 
     public Game gamePlay(GamePlay gamePlay) throws NotFoundException, InvalidGameException {
-        if(!GameStorage.getInstance().getGames().containsKey(gamePlay.getGameID())){
+        if (!GameStorage.getInstance().getGames().containsKey(gamePlay.getGameID())) {
             throw new NotFoundException("Game not found");
         }
 
         Game game = GameStorage.getInstance().getGames().get(gamePlay.getGameID());
-        if(game.getStatus().equals(GameStatus.FINISHED)){
+        if (game.getStatus().equals(GameStatus.FINISHED)) {
             throw new InvalidGameException("Game is already finished");
         }
 
