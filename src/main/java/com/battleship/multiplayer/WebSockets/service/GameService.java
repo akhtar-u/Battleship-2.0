@@ -8,6 +8,7 @@ import com.battleship.multiplayer.WebSockets.model.Game;
 import com.battleship.multiplayer.WebSockets.model.GamePlay;
 import com.battleship.multiplayer.WebSockets.model.GameStatus;
 import com.battleship.multiplayer.WebSockets.model.Player;
+import com.battleship.multiplayer.WebSockets.storage.GameRepository;
 import com.battleship.multiplayer.WebSockets.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,16 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GameService {
 
+    private final GameRepository gameRepository;
+
     public Game createGame(ConnectRequest request){
         Game game = new Game();
-        game.setGameID(UUID.randomUUID().toString());
-        game.setPlayer1(request.getPlayer());
+        game.setGameID(UUID.randomUUID());
+        game.setPlayer1(request.getPlayer().getName());
         game.setPlayerOneShips(request.getShipArray());
+
         game.setStatus(GameStatus.NEW);
+        gameRepository.save(game);
         GameStorage.getInstance().setGames(game);
         return game;
     }
@@ -38,7 +43,7 @@ public class GameService {
             throw new InvalidGameException("Game is full");
         }
 
-        game.setPlayer2(player2);
+        game.setPlayer2(player2.getName());
         game.setStatus(GameStatus.IN_PROGRESS);
         GameStorage.getInstance().setGames(game);
         return game;
@@ -50,7 +55,7 @@ public class GameService {
                 .findFirst()
                 .orElseThrow(()-> new NotFoundException("Game not found"));
 
-        game.setPlayer2(request.getPlayer());
+        game.setPlayer2(request.getPlayer().getName());
         game.setPlayerTwoShips(request.getShipArray());
         game.setStatus(GameStatus.IN_PROGRESS);
         GameStorage.getInstance().setGames(game);

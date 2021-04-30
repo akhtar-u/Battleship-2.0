@@ -4,10 +4,11 @@ import com.battleship.multiplayer.WebSockets.model.Game;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class GameStorage {
 
-    public static Map<String, Game> games;
+    public static Map<UUID, Game> games;
     private static GameStorage instance;
 
     private GameStorage() {
@@ -21,7 +22,7 @@ public class GameStorage {
         return instance;
     }
 
-    public Map<String, Game> getGames(){
+    public Map<UUID, Game> getGames(){
         return games;
     }
     public void setGames(Game game){
