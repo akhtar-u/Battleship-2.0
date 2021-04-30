@@ -8,4 +8,5 @@ public class ConnectRequest {
     private Player player;
     private String gameID;
     private String type;
+    private int[] shipArray;
 }

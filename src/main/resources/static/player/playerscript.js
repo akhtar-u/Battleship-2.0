@@ -8,6 +8,7 @@ let currentShip = null;
 let gameStarted = false;
 let gameOver = false;
 let allShipCells = [];
+let cellsAttacked = [];
 
 /* create a ship class */
 class Ship {
@@ -76,7 +77,9 @@ for (let i = 0; i < oppboardwrapper.length; i++) {
             let tempID = event.target.getElementsByTagName("div")[0].id;
             tempID = tempID.slice(1);
             attackCell = parseInt(tempID);
-            playGame();
+            if (playerTurn) {
+                playGame();
+            }
         }
     });
 }
@@ -203,23 +206,23 @@ function generateCoordinates(larger, smaller) {
 
 /* gameplay */
 function playGame() {
-    if (document.getElementById("o" + attackCell).innerText === "") {
-        if (allcpuShipCells.includes(attackCell)) {
-            document.getElementById("o" + attackCell).innerText = "💥";
-            allcpuShipCells.splice(allcpuShipCells.indexOf(attackCell), 1);
-            checkCPUShip(attackCell);
-        } else {
-            document.getElementById("o" + attackCell).innerText = "❌";
+    if (cellsAttacked.includes(attackCell)) {
+        printLog("You have already attacked here!");
+    } else {
+        let data = JSON.stringify({
+            cellAttacked: attackCell,
+            type: "ATTACK"
+        })
+        sendMessage(data);
+        cellsAttacked.push(attackCell);
+
+        if (gameOver) {
+            showHomeButton();
         }
-        attackPlayer();
-    }
-    if(gameOver){
-        showHomeButton();
     }
 }
 
-function attackPlayer() {
-    let newAttack = attackedCellsByCpu.splice(Math.floor(Math.random() * attackedCellsByCpu.length), 1)[0];
+function playerAttacked(newAttack) {
     if (allShipCells.includes(newAttack)) {
         document.getElementById(String(newAttack)).innerText = "💥";
         allShipCells.splice(allShipCells.indexOf(newAttack), 1);
@@ -265,8 +268,8 @@ function checkPlayerShip(attackCell) {
 /* game over */
 function showHomeButton() {
     let homeButton = document.getElementById("start");
-        homeButton.disabled = false;
-        homeButton.innerText = "Home";
+    homeButton.disabled = false;
+    homeButton.innerText = "Home";
 }
 
 /* multiplayer functions */
@@ -280,7 +283,7 @@ let gameIDBtn = document.getElementById("gameIDbtn");
 
 let newGameID;
 let oppNameInput;
-let playerType;
+let playerTurn;
 
 document.getElementById("newgamebtn").addEventListener("click", ev => {
     if (playerNameInput.value !== "") {
@@ -350,30 +353,39 @@ const onMessageReceived = (payload) => {
     if (message.type === "NEWGAME") {
 
     } else if (message.type === "JOIN") {
-        if (playerType === "1") {
+        if (playerTurn) {
             oppBoardName.innerText = message.name;
-            printLog("<span>" + message.name + "</span> has joined your game!");
+            printLog("<span>" + message.name + "</span> has joined your game! " +
+                "You go first, attack your opponent!");
+            gameStarted = true;
+        } else {
+            printLog("Game found! You are playing against: <span>" + oppNameInput + "</span>. " +
+                "You will go second, wait for your opponent to attack.");
             gameStarted = true;
         }
-
     } else if (message.type === "ERROR") {
         alert("Your opponent has disconnected! Please create a new game.");
         printLog("Your opponent has disconnected! Please create a new game.");
         gameStarted = false;
+    } else if (message.type === "ATTACK") {
+        if (!playerTurn) {
+            playerAttacked(message.cellAttacked);
+            printLog("Opponent attacked at: <span>" + message.cellAttacked + "</span>.");
+        }
     }
 }
 
-function sendMessage() {
-    stompClient.send("/topic/game-progress" + newGameID, {}, JSON.stringify({
-        name: playerNameInput.value,
-        type: connectionType
-    }));
+function sendMessage(data) {
+    stompClient.send("/topic/game-progress" + newGameID, {}, data);
 }
 
 function createNewGame() {
     if (playerShipsPlaced()) {
         axios.post(url + "/game/start", {
-            name: playerNameInput.value
+            player: {
+                name: playerNameInput.value
+            },
+            shipArray: allShipCells
         })
             .then((response) => {
                 newGameID = response.data.gameID;
@@ -382,7 +394,7 @@ function createNewGame() {
 
                 printLog("New game created with game ID: <span>" + newGameID + "</span>");
                 playerBoardName.innerText = playerNameInput.value;
-                playerType = "1";
+                playerTurn = true;
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
@@ -393,7 +405,8 @@ function createNewGame() {
 function connectToRandomGame() {
     if (playerShipsPlaced()) {
         axios.post(url + "/game/connect/random", {
-            name: playerNameInput.value
+            name: playerNameInput.value,
+            shipArray: allShipCells
         })
             .then((response) => {
                 newGameID = response.data.gameID;
@@ -401,11 +414,9 @@ function connectToRandomGame() {
                 connectSocket();
 
                 playerBoardName.innerText = playerNameInput.value;
-                playerType = "2";
+                playerTurn = false;
                 oppNameInput = response.data.player1.name;
-                printLog("Game found! You are playing against: <span>" + oppNameInput + "</span>");
                 oppBoardName.innerText = oppNameInput;
-                gameStarted = true;
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
@@ -416,12 +427,12 @@ function connectToRandomGame() {
 
 function connectBygameID() {
     if (playerShipsPlaced()) {
-
         axios.post(url + "/game/connect", {
             player: {
                 name: playerNameInput.value
             },
-            gameID: gameIDInput.value
+            gameID: gameIDInput.value,
+            shipArray: allShipCells
         })
             .then((response) => {
                 newGameID = response.data.gameID;
@@ -429,11 +440,9 @@ function connectBygameID() {
                 connectSocket();
 
                 playerBoardName.innerText = playerNameInput.value;
-                playerType = "2";
+                playerTurn = false;
                 oppNameInput = response.data.player1.name;
-                printLog("Connection established! You are playing against: <span>" + oppNameInput + "</span>");
                 oppBoardName.innerText = oppNameInput;
-                gameStarted = true;
                 disableConnectButtons();
             }, (error) => {
                 console.log(error);
