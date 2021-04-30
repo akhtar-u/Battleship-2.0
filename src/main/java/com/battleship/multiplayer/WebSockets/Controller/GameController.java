@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.battleship.multiplayer.WebSockets.model.Game;
 import com.battleship.multiplayer.WebSockets.model.GamePlay;
-import com.battleship.multiplayer.WebSockets.model.Player;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,6 @@ public class GameController {
     public ResponseEntity<Game> start(@RequestBody ConnectRequest request) {
         log.info("start game request: {}", request);
         Game game = gameService.createGame(request);
-        log.info(game.getPlayerOneShips().toString());
         return ResponseEntity.ok(game);
     }
 

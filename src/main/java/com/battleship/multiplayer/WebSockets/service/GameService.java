@@ -8,22 +8,26 @@ import com.battleship.multiplayer.WebSockets.model.Game;
 import com.battleship.multiplayer.WebSockets.model.GamePlay;
 import com.battleship.multiplayer.WebSockets.model.GameStatus;
 import com.battleship.multiplayer.WebSockets.model.Player;
-import com.battleship.multiplayer.WebSockets.storage.GameRepository;
+import com.battleship.multiplayer.WebSockets.model.GameRepository;
 import com.battleship.multiplayer.WebSockets.storage.GameStorage;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.UUID;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class GameService {
 
+    @Autowired
     private final GameRepository gameRepository;
 
     public Game createGame(ConnectRequest request){
         Game game = new Game();
-        game.setGameID(UUID.randomUUID());
+        game.setGameID(UUID.randomUUID().toString());
         game.setPlayer1(request.getPlayer().getName());
         game.setPlayerOneShips(request.getShipArray());
 
@@ -50,6 +54,8 @@ public class GameService {
     }
 
     public Game connectToRandomGame(ConnectRequest request) throws NotFoundException {
+        System.out.println(gameRepository.findById(request.getGameID()));
+
         Game game = GameStorage.getInstance().getGames().values().stream()
                 .filter(it->it.getStatus().equals(GameStatus.NEW))
                 .findFirst()
