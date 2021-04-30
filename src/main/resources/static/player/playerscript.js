@@ -266,7 +266,7 @@ function checkPlayerShip(attackCell) {
 function showHomeButton() {
     let homeButton = document.getElementById("start");
         homeButton.disabled = false;
-        homeButton.innerText = "Main Menu";
+        homeButton.innerText = "Home";
 }
 
 /* multiplayer functions */
