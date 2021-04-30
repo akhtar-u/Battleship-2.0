@@ -1,18 +1,17 @@
 package com.battleship.multiplayer.WebSockets.model;
 
 import lombok.Data;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @Entity
 public class Game {
 
     @Id
-    @GeneratedValue
-    private UUID gameID;
+    private String gameID;
 
     private String player1;
     private String player2;
