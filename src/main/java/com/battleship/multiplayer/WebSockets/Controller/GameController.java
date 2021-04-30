@@ -30,9 +30,9 @@ public class GameController {
     }
 
     @PostMapping("/connect")
-    public ResponseEntity<Game> connect(@RequestBody ConnectRequest request) throws InvalidParameterException, InvalidGameException {
+    public ResponseEntity<GameResponse> connect(@RequestBody ConnectRequest request) throws InvalidParameterException, InvalidGameException {
         log.info("connect request: {}", request);
-        return ResponseEntity.ok(gameService.connectToGame(request.getPlayer(), request.getGameID()));
+        return ResponseEntity.ok(gameService.connectToGame(request));
     }
 
     @PostMapping("/connect/random")

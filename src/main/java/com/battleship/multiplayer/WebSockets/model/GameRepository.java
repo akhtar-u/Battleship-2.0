@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface GameRepository extends CrudRepository<Game, String> {
     List<Game> findByStatusIs(GameStatus status);
-
+    List<Game> findByGameIDIs(String gameID);
 }
