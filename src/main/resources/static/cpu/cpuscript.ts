@@ -372,7 +372,7 @@ namespace cpu {
     function showHomeButton() {
         let homeButton = <HTMLButtonElement>document.getElementById("start");
         homeButton.disabled = false;
-        homeButton.innerText = "Main Menu";
+        homeButton.innerText = "Home";
     }
 
     /* randomly place ships on the board */
