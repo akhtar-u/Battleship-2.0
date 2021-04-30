@@ -1,9 +1,10 @@
 package com.battleship.multiplayer.WebSockets.model;
 
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.List;
 
 @Data
@@ -19,5 +20,5 @@ public class Game {
     @ElementCollection
     private List<Integer> playerOneShips;
     @ElementCollection
-    private List<Integer>  playerTwoShips;
+    private List<Integer> playerTwoShips;
 }
