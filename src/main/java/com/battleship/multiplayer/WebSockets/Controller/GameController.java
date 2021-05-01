@@ -3,15 +3,18 @@ package com.battleship.multiplayer.WebSockets.Controller;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidGameException;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidParameterException;
 import com.battleship.multiplayer.WebSockets.exceptions.NotFoundException;
+import com.battleship.multiplayer.WebSockets.model.GamePlay;
+import com.battleship.multiplayer.WebSockets.model.GamePlayResponse;
 import com.battleship.multiplayer.WebSockets.model.GameResponse;
+import com.battleship.multiplayer.WebSockets.service.GameService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.battleship.multiplayer.WebSockets.model.Game;
-import com.battleship.multiplayer.WebSockets.model.GamePlay;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
-import com.battleship.multiplayer.WebSockets.service.GameService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
@@ -41,9 +44,8 @@ public class GameController {
     }
 
     @PostMapping("/gameplay")
-    public ResponseEntity<GameResponse> gamePlay(@RequestBody GamePlay gamePlay) throws InvalidGameException, NotFoundException {
+    public void gamePlay(@RequestBody GamePlay gamePlay) throws InvalidGameException, NotFoundException {
         log.info("gameplay: {}", gamePlay);
-//        simpMessagingTemplate.convertAndSend("/topic/game-progress" + game.getGameID(), game);
-        return ResponseEntity.ok(gameService.gamePlay(gamePlay));
+        simpMessagingTemplate.convertAndSend("/topic/game-progress" + gamePlay.getGameID() ,gameService.gamePlay(gamePlay));
     }
 }

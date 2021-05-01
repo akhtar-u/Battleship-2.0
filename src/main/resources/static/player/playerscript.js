@@ -219,12 +219,6 @@ function playGame() {
             }, (error) => {
                 console.log(error);
             });
-
-        // let data = JSON.stringify({
-        //     cellAttacked: attackCell,
-        //     type: "ATTACK"
-        // })
-        // sendMessage(data);
         cellsAttacked.push(attackCell);
 
         if (gameOver) {
