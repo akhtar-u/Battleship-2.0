@@ -4,7 +4,6 @@ import com.battleship.multiplayer.WebSockets.exceptions.InvalidGameException;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidParameterException;
 import com.battleship.multiplayer.WebSockets.exceptions.NotFoundException;
 import com.battleship.multiplayer.WebSockets.model.GamePlay;
-import com.battleship.multiplayer.WebSockets.model.GamePlayResponse;
 import com.battleship.multiplayer.WebSockets.model.GameResponse;
 import com.battleship.multiplayer.WebSockets.service.GameService;
 import lombok.AllArgsConstructor;
@@ -41,6 +40,12 @@ public class GameController {
     public ResponseEntity<GameResponse> connectRandom(@RequestBody ConnectRequest request) throws NotFoundException {
         log.info("connect random: {}", request);
         return ResponseEntity.ok(gameService.connectToRandomGame(request));
+    }
+
+    @PostMapping("/gameover")
+    public void deleteFinishedGame(@RequestBody ConnectRequest request) throws InvalidGameException {
+        log.info("deleted finished game: {}", request);
+        gameService.deleteFinishedGame(request.getGameID());
     }
 
     @PostMapping("/gameplay")

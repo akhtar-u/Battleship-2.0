@@ -424,6 +424,7 @@ const onMessageReceived = (payload) => {
         }
         else {
             printLog("<span>You sank your opponent's ships!</span>");
+            deleteFinishedGame();
         }
     }
     else {
@@ -471,7 +472,16 @@ function crossOutShip(shipName) {
         document.getElementById("odestroyer").style.textDecoration = "line-through white 0.2em";
         printLog("You sank the opponent's <span>Destroyer</span>!");
     }
+}
 
+function deleteFinishedGame(){
+    axios.post(url + "/game/gameover", {
+        gameID: newGameID
+    })
+        .then((response) => {
+        }, (error) => {
+            console.log(error);
+        });
 }
 
 
