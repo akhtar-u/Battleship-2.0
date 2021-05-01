@@ -95,7 +95,7 @@ public class GameService {
             List<Integer> playerShipCells = gameRepository.findAllPlayerTwoShips(game.getGameID());
             response.setShipHit(playerShipCells.contains(Integer.parseInt(gamePlay.getCellAttacked())));
         }
-        else{
+        else {
             response.setAttackingPlayer("two");
             List<Integer> playerShipCells = gameRepository.findAllPlayerOneShips(game.getGameID());
             response.setShipHit(playerShipCells.contains(Integer.parseInt(gamePlay.getCellAttacked())));
@@ -103,5 +103,13 @@ public class GameService {
 
         response.setAttackCell(gamePlay.getCellAttacked());
         return response;
+    }
+
+    public void deleteFinishedGame(String gameID) throws InvalidGameException {
+        if (gameRepository.findByGameIDIs(gameID).get(0) == null) {
+            throw new InvalidGameException("Game could not be found!");
+        }
+        Game game = gameRepository.findByGameIDIs(gameID).get(0);
+        gameRepository.delete(game);
     }
 }
