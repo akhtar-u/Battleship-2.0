@@ -291,7 +291,6 @@ function checkPlayerShip(attackCell) {
         if (destroyer.coordinates.length === 0) {
             document.getElementById("pdestroyer").style.textDecoration = "line-through white 0.2em";
             sendMessage(JSON.stringify({ type: "SHIPDOWN", shipName: "destroyer", playerType: playerType }));
-            console.log("send destoryer destroyed message?");
         }
     }
 }
@@ -370,6 +369,7 @@ const connectSocket = () => {
     const socket = new SockJS(url + "/gameplay");
     stompClient = Stomp.over(socket);
     stompClient.connect({gameID: newGameID}, onConnected, onError);
+    stompClient.debug = null;
 }
 
 const onError = (error) => {
@@ -420,10 +420,10 @@ const onMessageReceived = (payload) => {
         playerTurn = false;
         showHomeButton();
         if (message.playerType === playerType) {
-            printLog("All you ships have been sunk!");
+            printLog("<span>All you ships have been sunk!</span>");
         }
         else {
-            printLog("You sank your opponent's ships!");
+            printLog("<span>You sank your opponent's ships!</span>");
         }
     }
     else {
@@ -453,23 +453,23 @@ function displayOppBoard(attackCell, shipHit) {
 function crossOutShip(shipName) {
     if (shipName === "carrier") {
         document.getElementById("ocarrier").style.textDecoration = "line-through white 0.2em";
-        printLog("You sank the opponent's Carrier!");
+        printLog("You sank the opponent's <span>Carrier</span>!");
     }
     else if (shipName === "battleship") {
         document.getElementById("obattleship").style.textDecoration = "line-through white 0.2em";
-        printLog("You sank the opponent's Battleship!");
+        printLog("You sank the opponent's <span>Battleship</span>!");
     }
     else if (shipName === "cruiser") {
         document.getElementById("ocruiser").style.textDecoration = "line-through white 0.2em";
-        printLog("You sank the opponent's Cruiser!");
+        printLog("You sank the opponent's <span>Cruiser</span>!");
     }
     else if (shipName === "submarine") {
         document.getElementById("osubmarine").style.textDecoration = "line-through white 0.2em";
-        printLog("You sank the opponent's Submarine!");
+        printLog("You sank the opponent's <span>Submarine</span>!");
     }
     else {
         document.getElementById("odestroyer").style.textDecoration = "line-through white 0.2em";
-        printLog("You sank the opponent's Destroyer!");
+        printLog("You sank the opponent's <span>Destroyer</span>!");
     }
 
 }
@@ -491,7 +491,7 @@ function createNewGame() {
                 connectionType = "NEWGAME";
                 connectSocket();
 
-                printLog("New game created with game ID: <span>" + newGameID + "</span>");
+                printLog("New game created with game ID: <span>" + newGameID + "</span> - Waiting for an opponent...");
                 playerBoardName.innerText = playerNameInput.value;
                 playerTurn = true;
                 playerType = "one";
