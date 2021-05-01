@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,14 +24,14 @@ public class GameService {
     public GameResponse createGame(ConnectRequest request) {
         Game game = new Game();
         game.setGameID(UUID.randomUUID().toString());
-        game.setPlayer1(request.getPlayer());
+        game.setPlayer1(request.getPlayer() + "1");
         game.setPlayerOneShips(request.getShipArray());
         game.setStatus(GameStatus.NEW);
         gameRepository.save(game);
 
         GameResponse response = new GameResponse();
         response.setGameID(game.getGameID());
-        response.setPlayer1(game.getPlayer1());
+        response.setPlayer1(game.getPlayer1().substring(0, game.getPlayer1().length() - 1));
 
         return response;
     }
@@ -45,38 +46,38 @@ public class GameService {
             throw new InvalidGameException("Game is full");
         }
 
-        game.setPlayer2(request.getPlayer());
+        game.setPlayer2(request.getPlayer() + "2");
         game.setPlayerTwoShips(request.getShipArray());
         game.setStatus(GameStatus.IN_PROGRESS);
         gameRepository.save(game);
 
         GameResponse response = new GameResponse();
         response.setGameID(game.getGameID());
-        response.setPlayer1(game.getPlayer1());
-        response.setPlayer2(game.getPlayer2());
+        response.setPlayer1(game.getPlayer1().substring(0, game.getPlayer1().length() - 1));
+        response.setPlayer2(game.getPlayer2().substring(0, game.getPlayer2().length() - 1));
 
         return response;
     }
 
     public GameResponse connectToRandomGame(ConnectRequest request) throws NotFoundException {
-        if (gameRepository.findByStatusIs(GameStatus.NEW).get(0) == null) {
+        if (gameRepository.findFirstByStatusIs(GameStatus.NEW) == null) {
             throw new NotFoundException("Game not found");
         }
-        Game game = gameRepository.findByStatusIs(GameStatus.NEW).get(0);
-        game.setPlayer2(request.getPlayer());
+        Game game = gameRepository.findFirstByStatusIs(GameStatus.NEW).get(0);
+        game.setPlayer2(request.getPlayer() + "2");
         game.setPlayerTwoShips(request.getShipArray());
         game.setStatus(GameStatus.IN_PROGRESS);
         gameRepository.save(game);
 
         GameResponse response = new GameResponse();
         response.setGameID(game.getGameID());
-        response.setPlayer1(game.getPlayer1());
-        response.setPlayer2(game.getPlayer2());
+        response.setPlayer1(game.getPlayer1().substring(0, game.getPlayer1().length() - 1));
+        response.setPlayer2(game.getPlayer2().substring(0, game.getPlayer2().length() - 1));
 
         return response;
     }
 
-    public GameResponse gamePlay(GamePlay gamePlay) throws NotFoundException, InvalidGameException {
+    public GamePlayResponse gamePlay(GamePlay gamePlay) throws NotFoundException, InvalidGameException {
         if (gameRepository.findByGameIDIs(gamePlay.getGameID()).get(0) == null) {
             throw new NotFoundException("Game not found");
         }
@@ -86,8 +87,43 @@ public class GameService {
             throw new InvalidGameException("Game is already finished");
         }
 
-        GameResponse response = new GameResponse();
-        response.setPlayer1(game.getPlayer1());
+        GamePlayResponse response = new GamePlayResponse();
+        response.setGameID(game.getGameID());
+        response.setAttackingPlayer("two");
+
+        if (game.getPlayer1().equals(gamePlay.getPlayer() + "1")) {
+            response.setAttackingPlayer("one");
+        }
+
+        response.setShipHit(processAttack(gamePlay.getGameID(), gamePlay.getPlayer(), gamePlay.getCellAttacked()));
+        response.setAttackCell(gamePlay.getCellAttacked());
+
+        checkWinner();
+
         return response;
     }
+
+    private boolean processAttack(String gameID, String playerName, String attackedCell) {
+        List<Integer> playerShipCells;
+
+        if (gameRepository.findByGameIDAndPlayer1(gameID, playerName) == null) {
+            playerShipCells = gameRepository.findAllPlayerTwoShips(gameID);
+        }
+        else {
+            playerShipCells = gameRepository.findAllPlayerOneShips(gameID);
+        }
+
+        if (playerShipCells.contains(Integer.parseInt(attackedCell))) {
+            playerShipCells.remove((Integer) Integer.parseInt(attackedCell));
+            return true;
+        }
+
+        return false;
+    }
+
+    private String checkWinner() {
+        return "";
+    }
+
+
 }
