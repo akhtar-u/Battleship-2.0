@@ -76,20 +76,18 @@ public class GameService {
         return response;
     }
 
-    public Game gamePlay(GamePlay gamePlay) throws NotFoundException, InvalidGameException {
-//        if (!GameStorage.getInstance().getGames().containsKey(gamePlay.getGameID())) {
-//            throw new NotFoundException("Game not found");
-//        }
-//
-//        Game game = GameStorage.getInstance().getGames().get(gamePlay.getGameID());
-//        if (game.getStatus().equals(GameStatus.FINISHED)) {
-//            throw new InvalidGameException("Game is already finished");
-//        }
-//
-//        GameStorage.getInstance().setGames(game);
+    public GameResponse gamePlay(GamePlay gamePlay) throws NotFoundException, InvalidGameException {
+        if (gameRepository.findByGameIDIs(gamePlay.getGameID()).get(0) == null) {
+            throw new NotFoundException("Game not found");
+        }
 
-        Game game = new Game();
+        Game game = gameRepository.findByGameIDIs(gamePlay.getGameID()).get(0);
+        if (game.getStatus().equals(GameStatus.FINISHED)) {
+            throw new InvalidGameException("Game is already finished");
+        }
 
-        return game;
+        GameResponse response = new GameResponse();
+        response.setPlayer1(game.getPlayer1());
+        return response;
     }
 }

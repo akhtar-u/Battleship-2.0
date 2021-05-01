@@ -6,4 +6,6 @@ import lombok.Data;
 public class GamePlay {
 
     private String gameID;
+    private String player;
+    private String cellAttacked;
 }
