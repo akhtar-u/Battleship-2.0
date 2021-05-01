@@ -261,28 +261,28 @@ function checkPlayerShip(attackCell) {
         carrier.coordinates.splice(carrier.coordinates.indexOf(parseInt(attackCell)), 1);
         if (carrier.coordinates.length === 0) {
             document.getElementById("pcarrier").style.textDecoration = "line-through white 0.2em";
-
+            sendMessage(JSON.stringify({ type: "SHIPDOWN", shipName: "carrier", playerType: playerType }));
         }
     }
     if (battleship.coordinates.includes(parseInt(attackCell))) {
         battleship.coordinates.splice(battleship.coordinates.indexOf(parseInt(attackCell)), 1);
         if (battleship.coordinates.length === 0) {
             document.getElementById("pbattleship").style.textDecoration = "line-through white 0.2em";
-
+            sendMessage(JSON.stringify({ type: "SHIPDOWN", shipName: "battleship", playerType: playerType }));
         }
     }
     if (cruiser.coordinates.includes(parseInt(attackCell))) {
         cruiser.coordinates.splice(cruiser.coordinates.indexOf(parseInt(attackCell)), 1);
         if (cruiser.coordinates.length === 0) {
             document.getElementById("pcruiser").style.textDecoration = "line-through white 0.2em";
-
+            sendMessage(JSON.stringify({ type: "SHIPDOWN", shipName: "cruiser", playerType: playerType }));
         }
     }
     if (submarine.coordinates.includes(parseInt(attackCell))) {
         submarine.coordinates.splice(submarine.coordinates.indexOf(parseInt(attackCell)), 1);
         if (submarine.coordinates.length === 0) {
             document.getElementById("psubmarine").style.textDecoration = "line-through white 0.2em";
-
+            sendMessage(JSON.stringify({ type: "SHIPDOWN", shipName: "submarine", playerType: playerType }));
         }
 
     }
@@ -290,7 +290,8 @@ function checkPlayerShip(attackCell) {
         destroyer.coordinates.splice(destroyer.coordinates.indexOf(parseInt(attackCell)), 1);
         if (destroyer.coordinates.length === 0) {
             document.getElementById("pdestroyer").style.textDecoration = "line-through white 0.2em";
-
+            sendMessage(JSON.stringify({ type: "SHIPDOWN", shipName: "destroyer", playerType: playerType }));
+            console.log("send destoryer destroyed message?");
         }
     }
 }
@@ -360,8 +361,8 @@ function disableConnectButtons() {
 }
 
 /* websocket functions */
-const url = "http://localhost:8080";
-// const url = "https://shipsahoy.herokuapp.com";
+// const url = "http://localhost:8080";
+const url = "https://shipsahoy.herokuapp.com";
 let stompClient;
 let connectionType;
 
@@ -407,7 +408,12 @@ const onMessageReceived = (payload) => {
         gameStarted = false;
     }
     else if (message.type === "SHIPDOWN") {
-        crossOutShip(message.shipName);
+        if(playerType !== message.playerType){
+            crossOutShip(message.shipName);
+        }
+        else{
+            printLog("Opponent sank your: <span>" + message.shipName + "</span>!");
+        }
     }
     else if (message.type === "GAMEOVER") {
         gameOver = true;
@@ -423,10 +429,12 @@ const onMessageReceived = (payload) => {
     else {
         if (playerTurn) {
             displayOppBoard(message.attackCell, message.shipHit);
+            playerTurn = false;
         }
         else {
             playerAttacked(message.attackCell);
             printLog("Opponent attacked: <span>" + message.attackCell + "</span>. Your turn to attack!");
+            playerTurn = true;
         }
     }
 }
@@ -445,18 +453,23 @@ function displayOppBoard(attackCell, shipHit) {
 function crossOutShip(shipName) {
     if (shipName === "carrier") {
         document.getElementById("ocarrier").style.textDecoration = "line-through white 0.2em";
+        printLog("You sank the opponent's Carrier!");
     }
     else if (shipName === "battleship") {
         document.getElementById("obattleship").style.textDecoration = "line-through white 0.2em";
+        printLog("You sank the opponent's Battleship!");
     }
     else if (shipName === "cruiser") {
         document.getElementById("ocruiser").style.textDecoration = "line-through white 0.2em";
+        printLog("You sank the opponent's Cruiser!");
     }
     else if (shipName === "submarine") {
         document.getElementById("osubmarine").style.textDecoration = "line-through white 0.2em";
+        printLog("You sank the opponent's Submarine!");
     }
     else {
         document.getElementById("odestroyer").style.textDecoration = "line-through white 0.2em";
+        printLog("You sank the opponent's Destroyer!");
     }
 
 }
