@@ -56,14 +56,12 @@ for (let i = 0; i < pboardwrapper.length; i++) {
         if (currentShip != null) {
             if (firstCell != null) {
                 secondCell = parseInt(event.target.getElementsByTagName("div")[0].id);
-                printLog("You have selected <span>" + secondCell + "</span> " +
-                    "as your ending position.");
                 placeShip();
             }
             else {
                 firstCell = parseInt(event.target.getElementsByTagName("div")[0].id);
                 printLog("You have selected <span>" + firstCell + "</span> " +
-                    "as your starting position.");
+                    "as your starting position. Select an ending position to place your ship!");
             }
         }
     });
