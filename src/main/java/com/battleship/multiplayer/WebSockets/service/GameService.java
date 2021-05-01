@@ -102,27 +102,6 @@ public class GameService {
         }
 
         response.setAttackCell(gamePlay.getCellAttacked());
-        checkWinner();
-
         return response;
     }
-
-    private boolean processAttack(String gameID, String playerName, String attackedCell) {
-        List<Integer> playerShipCells;
-
-        if (gameRepository.findByGameIDAndPlayer1(gameID, playerName) == null) {
-            playerShipCells = gameRepository.findAllPlayerTwoShips(gameID);
-        }
-        else {
-           playerShipCells = gameRepository.findAllPlayerOneShips(gameID);
-        }
-
-        return playerShipCells.contains(Integer.parseInt(attackedCell));
-    }
-
-    private String checkWinner() {
-        return "";
-    }
-
-
 }
