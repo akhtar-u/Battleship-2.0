@@ -209,11 +209,22 @@ function playGame() {
     if (cellsAttacked.includes(attackCell)) {
         printLog("You have already attacked here!");
     } else {
-        let data = JSON.stringify({
+        axios.post(url + "/game/gameplay", {
+            gameID: newGameID,
             cellAttacked: attackCell,
-            type: "ATTACK"
+            player: playerNameInput.value
         })
-        sendMessage(data);
+            .then((response) => {
+                console.log(response.data);
+            }, (error) => {
+                console.log(error);
+            });
+
+        // let data = JSON.stringify({
+        //     cellAttacked: attackCell,
+        //     type: "ATTACK"
+        // })
+        // sendMessage(data);
         cellsAttacked.push(attackCell);
 
         if (gameOver) {

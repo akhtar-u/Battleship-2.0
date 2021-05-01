@@ -41,10 +41,9 @@ public class GameController {
     }
 
     @PostMapping("/gameplay")
-    public ResponseEntity<Game> gamePlay(@RequestBody GamePlay request) throws InvalidGameException, NotFoundException {
-        log.info("gameplay: {}", request);
-        Game game = gameService.gamePlay(request);
-        simpMessagingTemplate.convertAndSend("/topic/game-progress" + game.getGameID(), game);
-        return ResponseEntity.ok(game);
+    public ResponseEntity<GameResponse> gamePlay(@RequestBody GamePlay gamePlay) throws InvalidGameException, NotFoundException {
+        log.info("gameplay: {}", gamePlay);
+//        simpMessagingTemplate.convertAndSend("/topic/game-progress" + game.getGameID(), game);
+        return ResponseEntity.ok(gameService.gamePlay(gamePlay));
     }
 }
