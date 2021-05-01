@@ -89,15 +89,19 @@ public class GameService {
 
         GamePlayResponse response = new GamePlayResponse();
         response.setGameID(game.getGameID());
-        response.setAttackingPlayer("two");
 
         if (game.getPlayer1().equals(gamePlay.getPlayer() + "1")) {
             response.setAttackingPlayer("one");
+            List<Integer> playerShipCells = gameRepository.findAllPlayerTwoShips(game.getGameID());
+            response.setShipHit(playerShipCells.contains(Integer.parseInt(gamePlay.getCellAttacked())));
+        }
+        else{
+            response.setAttackingPlayer("two");
+            List<Integer> playerShipCells = gameRepository.findAllPlayerOneShips(game.getGameID());
+            response.setShipHit(playerShipCells.contains(Integer.parseInt(gamePlay.getCellAttacked())));
         }
 
-        response.setShipHit(processAttack(gamePlay.getGameID(), gamePlay.getPlayer(), gamePlay.getCellAttacked()));
         response.setAttackCell(gamePlay.getCellAttacked());
-
         checkWinner();
 
         return response;
@@ -110,15 +114,10 @@ public class GameService {
             playerShipCells = gameRepository.findAllPlayerTwoShips(gameID);
         }
         else {
-            playerShipCells = gameRepository.findAllPlayerOneShips(gameID);
+           playerShipCells = gameRepository.findAllPlayerOneShips(gameID);
         }
 
-        if (playerShipCells.contains(Integer.parseInt(attackedCell))) {
-            playerShipCells.remove((Integer) Integer.parseInt(attackedCell));
-            return true;
-        }
-
-        return false;
+        return playerShipCells.contains(Integer.parseInt(attackedCell));
     }
 
     private String checkWinner() {
