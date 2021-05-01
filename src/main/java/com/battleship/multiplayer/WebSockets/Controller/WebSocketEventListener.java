@@ -2,6 +2,7 @@ package com.battleship.multiplayer.WebSockets.Controller;
 
 
 import com.battleship.multiplayer.WebSockets.model.Game;
+import com.battleship.multiplayer.WebSockets.model.GameRepository;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +25,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class WebSocketEventListener {
 
-
     private static Map<String, String> sessionMap = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketEventListener.class);
+    private final GameRepository gameRepository;
 
     @Autowired
     private final SimpMessageSendingOperations sendingOperations;
@@ -46,12 +47,11 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketDisconnectListener(final SessionDisconnectEvent event) {
         String gameID = sessionMap.get(event.getSessionId());
-//        Game game = GameStorage.getInstance().getGames().get(gameID);
 
         ConnectRequest request = new ConnectRequest();
         request.setType("ERROR");
 
         sendingOperations.convertAndSend("/topic/game-progress" + gameID, request);
-
+        sessionMap.remove(event.getSessionId());
     }
 }
