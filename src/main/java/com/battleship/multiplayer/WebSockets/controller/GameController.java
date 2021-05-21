@@ -1,4 +1,4 @@
-package com.battleship.multiplayer.WebSockets.Controller;
+package com.battleship.multiplayer.WebSockets.controller;
 
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidGameException;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidParameterException;

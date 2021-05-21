@@ -1,7 +1,6 @@
-package com.battleship.multiplayer.WebSockets.Controller;
+package com.battleship.multiplayer.WebSockets.controller;
 
 
-import com.battleship.multiplayer.WebSockets.model.Game;
 import com.battleship.multiplayer.WebSockets.model.GameRepository;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;

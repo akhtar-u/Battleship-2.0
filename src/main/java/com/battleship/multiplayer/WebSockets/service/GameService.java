@@ -1,6 +1,6 @@
 package com.battleship.multiplayer.WebSockets.service;
 
-import com.battleship.multiplayer.WebSockets.Controller.ConnectRequest;
+import com.battleship.multiplayer.WebSockets.controller.ConnectRequest;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidGameException;
 import com.battleship.multiplayer.WebSockets.exceptions.InvalidParameterException;
 import com.battleship.multiplayer.WebSockets.exceptions.NotFoundException;

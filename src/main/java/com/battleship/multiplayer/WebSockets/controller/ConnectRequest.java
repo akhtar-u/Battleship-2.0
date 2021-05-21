@@ -1,4 +1,4 @@
-package com.battleship.multiplayer.WebSockets.Controller;
+package com.battleship.multiplayer.WebSockets.controller;
 
 import lombok.Data;
 
